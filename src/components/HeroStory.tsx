@@ -10,7 +10,6 @@ interface HeroStoryProps {
 export const HeroStory: React.FC<HeroStoryProps> = ({ onExploreClick, onStudioClick }) => {
   const [transitionPhase, setTransitionPhase] = useState<'raw' | 'transition' | 'complete'>('raw');
 
-  // Automatic gentle phase preview indicator
   useEffect(() => {
     const interval = setInterval(() => {
       setTransitionPhase(prev => {
@@ -18,7 +17,7 @@ export const HeroStory: React.FC<HeroStoryProps> = ({ onExploreClick, onStudioCl
         if (prev === 'transition') return 'complete';
         return 'raw';
       });
-    }, 4500);
+    }, 5000);
     return () => clearInterval(interval);
   }, []);
 
@@ -29,151 +28,135 @@ export const HeroStory: React.FC<HeroStoryProps> = ({ onExploreClick, onStudioCl
   };
 
   return (
-    <section className="relative min-h-[100svh] w-full flex items-center justify-center overflow-hidden pt-20 pb-16">
+    <section className="relative min-h-[92svh] sm:min-h-[100svh] w-full flex items-center justify-center overflow-hidden pt-16 pb-12 sm:pt-20 sm:pb-16">
       
-      {/* Dynamic Background Image Crossfade Layers */}
-      <div className="absolute inset-0 z-0">
-        <div 
-          className="absolute inset-0 bg-cover bg-center transition-opacity duration-1000 scale-105 transform ease-out"
-          style={{ 
-            backgroundImage: `url(${heroImages[transitionPhase]})`,
-            opacity: 0.42
-          }}
+      {/* Optimized Single Background Layer */}
+      <div className="absolute inset-0 z-0 pointer-events-none">
+        <img
+          key={transitionPhase}
+          src={heroImages[transitionPhase]}
+          alt="Raj Interior Transformation"
+          className="w-full h-full object-cover opacity-40 animate-in fade-in duration-1000 scale-102"
+          style={{ transform: 'translateZ(0)' }}
         />
-        {/* Radial Dark Vignette and Gradient overlays for maximum editorial text legibility */}
-        <div className="absolute inset-0 bg-gradient-to-t from-raj-bg via-raj-bg/70 to-raj-bg/85" />
+        {/* Deep dark architectural overlays */}
+        <div className="absolute inset-0 bg-gradient-to-t from-raj-bg via-raj-bg/75 to-raj-bg/85" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,#0F1012_85%)]" />
       </div>
 
       {/* Hero Content Container */}
-      <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center flex flex-col items-center">
+      <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center flex flex-col items-center">
         
         {/* Architectural Phase Pill */}
-        <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-md mb-8 animate-float">
+        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-md mb-6 sm:mb-8">
           <span className="w-2 h-2 rounded-full bg-raj-gold animate-pulse" />
-          <span className="text-xs font-mono tracking-widest text-raj-sand uppercase">
+          <span className="text-[10px] sm:text-xs font-mono tracking-widest text-raj-sand uppercase">
             {BRAND_DATA.descriptor}
           </span>
           <span className="text-white/20">|</span>
-          <span className="text-[11px] font-mono text-raj-muted">
-            {transitionPhase === 'raw' && 'PHASE 01: RAW STRUCTURAL SPACE'}
+          <span className="text-[9px] sm:text-[11px] font-mono text-raj-muted">
+            {transitionPhase === 'raw' && 'PHASE 01: RAW SPACE'}
             {transitionPhase === 'transition' && 'PHASE 02: CRAFT TRANSFORMATION'}
-            {transitionPhase === 'complete' && 'PHASE 03: BESPOKE COMPLETION'}
+            {transitionPhase === 'complete' && 'PHASE 03: BESPOKE LIVING'}
           </span>
         </div>
 
         {/* Main Brand Title */}
-        <h1 className="font-serif text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-black tracking-tight leading-none mb-6">
-          <span className="gold-text-gradient block drop-shadow-2xl">
+        <h1 className="font-serif text-3xl sm:text-6xl md:text-7xl lg:text-8xl font-black tracking-tight leading-tight sm:leading-none mb-4 sm:mb-6">
+          <span className="gold-text-gradient block drop-shadow-xl">
             {BRAND_DATA.name}
           </span>
         </h1>
 
         {/* Locked Main Tagline */}
-        <div className="max-w-3xl mb-8">
-          <p className="font-serif text-lg sm:text-2xl md:text-3xl text-raj-cream/95 tracking-wide font-light leading-snug">
+        <div className="max-w-2xl mb-6 sm:mb-8">
+          <p className="font-serif text-base sm:text-2xl md:text-3xl text-raj-cream tracking-wide font-light leading-snug">
             {BRAND_DATA.tagline}
           </p>
-          <div className="w-24 h-[1px] bg-gradient-to-r from-transparent via-raj-gold to-transparent mx-auto mt-6" />
+          <div className="w-20 h-[1px] bg-gradient-to-r from-transparent via-raj-gold to-transparent mx-auto mt-4" />
         </div>
 
         {/* Story Journey Description */}
-        <p className="max-w-2xl text-sm sm:text-base text-raj-muted leading-relaxed font-light mb-10">
-          Experience the complete metamorphosis from raw structural canvas to masterfully executed living architecture. Full-spectrum interior execution and precision manufacturing.
+        <p className="max-w-xl text-xs sm:text-base text-raj-muted leading-relaxed font-light mb-8 sm:mb-10 px-2">
+          From raw structural concrete to masterfully executed living architecture. Complete turnkey interior execution and precision signage manufacturing.
         </p>
 
-        {/* Action CTAs */}
-        <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
+        {/* Action CTAs (Touch-friendly 48px min height on mobile) */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto px-4 sm:px-0">
           <button
             onClick={onExploreClick}
-            className="w-full sm:w-auto px-8 py-4 rounded-full bg-raj-gold text-raj-bg font-bold text-xs tracking-widest uppercase hover:bg-raj-gold-light transition-all duration-300 flex items-center justify-center gap-3 shadow-xl shadow-raj-gold/20 hover:scale-105 active:scale-95 group"
+            className="h-12 px-7 rounded-full bg-raj-gold text-raj-bg font-bold text-xs tracking-widest uppercase hover:bg-raj-gold-light transition-all flex items-center justify-center gap-2.5 shadow-lg shadow-raj-gold/20 active:scale-95"
           >
             <span>EXPLORE OUR WORK</span>
-            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-200" />
+            <ArrowRight className="w-4 h-4" />
           </button>
 
           <button
             onClick={onStudioClick}
-            className="w-full sm:w-auto px-8 py-4 rounded-full bg-white/5 hover:bg-white/10 text-raj-cream border border-white/15 hover:border-raj-gold/40 text-xs font-semibold tracking-widest uppercase transition-all duration-300 flex items-center justify-center gap-3 backdrop-blur-sm"
+            className="h-12 px-6 rounded-full bg-white/5 hover:bg-white/10 text-raj-cream border border-white/15 text-xs font-semibold tracking-widest uppercase transition-all flex items-center justify-center gap-2 active:scale-95"
           >
             <Box className="w-4 h-4 text-raj-gold" />
-            <span>INTERACTIVE 3D STUDIO</span>
+            <span>3D STUDIO</span>
           </button>
 
           <a
             href="#contact-section"
-            className="w-full sm:w-auto px-8 py-4 rounded-full bg-transparent hover:bg-white/5 text-raj-beige border border-white/10 hover:border-white/20 text-xs font-semibold tracking-widest uppercase transition-all duration-300 flex items-center justify-center gap-2"
+            className="h-12 px-6 rounded-full bg-transparent hover:bg-white/5 text-raj-beige border border-white/10 text-xs font-semibold tracking-widest uppercase transition-all flex items-center justify-center gap-2 active:scale-95"
           >
             <PhoneCall className="w-3.5 h-3.5 text-raj-gold" />
             <span>CONTACT</span>
           </a>
         </div>
 
-        {/* Story Sequence Pill Bar */}
-        <div className="mt-14 w-full max-w-4xl p-3 sm:p-4 rounded-2xl glass-panel border border-white/10 grid grid-cols-3 sm:grid-cols-5 gap-2 text-center text-[10px] sm:text-xs font-mono">
-          <div 
+        {/* Story Phase Buttons */}
+        <div className="mt-8 sm:mt-12 w-full max-w-3xl p-1.5 sm:p-2.5 rounded-2xl glass-panel border border-white/10 grid grid-cols-3 gap-1.5 text-center text-[10px] sm:text-xs font-mono">
+          <button 
             onClick={() => setTransitionPhase('raw')}
-            className={`cursor-pointer py-2 px-2 rounded-xl transition-all ${
+            className={`py-2 px-1 rounded-xl transition-all ${
               transitionPhase === 'raw' 
-                ? 'bg-raj-gold/20 text-raj-gold border border-raj-gold/40' 
+                ? 'bg-raj-gold/25 text-raj-gold border border-raj-gold/40 font-bold' 
                 : 'text-raj-muted hover:text-raj-cream hover:bg-white/5'
             }`}
           >
-            <span className="block opacity-60">01</span>
-            <span className="font-semibold uppercase truncate">EMPTY SPACE</span>
-          </div>
+            <span className="block opacity-60 text-[9px]">01</span>
+            <span className="truncate block">EMPTY SPACE</span>
+          </button>
 
-          <div 
+          <button 
             onClick={() => setTransitionPhase('transition')}
-            className={`cursor-pointer py-2 px-2 rounded-xl transition-all ${
+            className={`py-2 px-1 rounded-xl transition-all ${
               transitionPhase === 'transition' 
-                ? 'bg-raj-gold/20 text-raj-gold border border-raj-gold/40' 
+                ? 'bg-raj-gold/25 text-raj-gold border border-raj-gold/40 font-bold' 
                 : 'text-raj-muted hover:text-raj-cream hover:bg-white/5'
             }`}
           >
-            <span className="block opacity-60">02</span>
-            <span className="font-semibold uppercase truncate">DESIGN PROCESS</span>
-          </div>
+            <span className="block opacity-60 text-[9px]">02</span>
+            <span className="truncate block">TRANSFORMATION</span>
+          </button>
 
-          <div 
+          <button 
             onClick={() => setTransitionPhase('complete')}
-            className={`cursor-pointer py-2 px-2 rounded-xl transition-all ${
+            className={`py-2 px-1 rounded-xl transition-all ${
               transitionPhase === 'complete' 
-                ? 'bg-raj-gold/20 text-raj-gold border border-raj-gold/40' 
+                ? 'bg-raj-gold/25 text-raj-gold border border-raj-gold/40 font-bold' 
                 : 'text-raj-muted hover:text-raj-cream hover:bg-white/5'
             }`}
           >
-            <span className="block opacity-60">03</span>
-            <span className="font-semibold uppercase truncate">COMPLETED SPACE</span>
-          </div>
-
-          <a 
-            href="#services-section"
-            className="hidden sm:block py-2 px-2 rounded-xl text-raj-muted hover:text-raj-cream hover:bg-white/5 transition-all"
-          >
-            <span className="block opacity-60">04</span>
-            <span className="font-semibold uppercase truncate">11 CRAFTS</span>
-          </a>
-
-          <a 
-            href="#manufacturer-section"
-            className="hidden sm:block py-2 px-2 rounded-xl text-raj-muted hover:text-raj-cream hover:bg-white/5 transition-all"
-          >
-            <span className="block opacity-60">05</span>
-            <span className="font-semibold uppercase truncate">MANUFACTURER</span>
-          </a>
+            <span className="block opacity-60 text-[9px]">03</span>
+            <span className="truncate block">COMPLETED</span>
+          </button>
         </div>
 
-        {/* Verified Business Badges */}
-        <div className="mt-8 flex flex-wrap items-center justify-center gap-6 text-xs text-raj-muted font-mono">
+        {/* Verified Statutory Indicators */}
+        <div className="mt-6 flex flex-wrap items-center justify-center gap-3 sm:gap-6 text-[11px] sm:text-xs text-raj-muted font-mono">
           <div className="flex items-center gap-1.5">
-            <ShieldCheck className="w-4 h-4 text-raj-gold" />
-            <span>GSTIN: <span className="text-raj-cream">{BRAND_DATA.gstin}</span></span>
+            <ShieldCheck className="w-3.5 h-3.5 text-raj-gold" />
+            <span>GSTIN: <span className="text-raj-cream font-medium">{BRAND_DATA.gstin}</span></span>
           </div>
           <div className="hidden sm:inline text-white/20">•</div>
           <div className="flex items-center gap-1.5">
-            <Sparkles className="w-4 h-4 text-raj-gold" />
-            <span>CE NO: <span className="text-raj-cream">{BRAND_DATA.ceNo}</span></span>
+            <Sparkles className="w-3.5 h-3.5 text-raj-gold" />
+            <span>CE NO: <span className="text-raj-cream font-medium">{BRAND_DATA.ceNo}</span></span>
           </div>
         </div>
 

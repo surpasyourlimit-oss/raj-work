@@ -3,21 +3,26 @@ import { Phone, Menu, X, Sparkles, Compass } from 'lucide-react';
 import { BRAND_DATA } from '../data/rajData';
 import { AmbienceAudio } from './AmbienceAudio';
 
-interface NavbarProps {
-  onSelectStoryScene?: (index: number) => void;
-}
-
-export const Navbar: React.FC<NavbarProps> = () => {
+export const Navbar: React.FC = () => {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
-      setScrolled(window.scrollY > 40);
+      setScrolled(window.scrollY > 25);
     };
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // Prevent background scroll when mobile menu is open
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+  }, [mobileMenuOpen]);
 
   const navLinks = [
     { label: 'THE STORY', href: '#story-section' },
@@ -29,51 +34,50 @@ export const Navbar: React.FC<NavbarProps> = () => {
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         scrolled
-          ? 'py-3 bg-raj-bg/85 backdrop-blur-xl border-b border-white/10 shadow-2xl'
-          : 'py-5 bg-gradient-to-b from-raj-bg/90 via-raj-bg/40 to-transparent'
+          ? 'py-2.5 bg-raj-bg/90 backdrop-blur-md border-b border-white/10 shadow-xl'
+          : 'py-4 bg-gradient-to-b from-raj-bg/95 to-transparent'
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between">
           
-          {/* Brand Logo & Descriptor */}
-          <a href="#" className="flex items-center gap-3.5 group">
-            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-raj-card to-raj-surface border border-raj-gold/30 flex items-center justify-center shadow-lg group-hover:border-raj-gold transition-colors duration-300">
-              <span className="font-serif font-black text-xl text-raj-gold tracking-tighter">R</span>
+          {/* Brand Logo */}
+          <a href="#" className="flex items-center gap-2.5 sm:gap-3.5 group">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-raj-card border border-raj-gold/30 flex items-center justify-center shadow-md group-hover:border-raj-gold transition-colors">
+              <span className="font-serif font-black text-lg sm:text-xl text-raj-gold">R</span>
             </div>
             <div className="flex flex-col">
-              <span className="font-serif text-lg sm:text-xl font-bold tracking-widest text-raj-cream group-hover:text-raj-gold transition-colors duration-300">
+              <span className="font-serif text-base sm:text-xl font-bold tracking-wider text-raj-cream group-hover:text-raj-gold transition-colors">
                 {BRAND_DATA.name}
               </span>
-              <span className="text-[9px] tracking-[0.25em] text-raj-gold uppercase font-medium">
+              <span className="text-[8px] sm:text-[9px] tracking-[0.2em] text-raj-gold uppercase font-medium">
                 {BRAND_DATA.descriptor}
               </span>
             </div>
           </a>
 
-          {/* Desktop Navigation Links */}
-          <nav className="hidden md:flex items-center gap-8 text-xs font-medium tracking-widest text-raj-beige/90">
+          {/* Desktop Links */}
+          <nav className="hidden md:flex items-center gap-7 text-xs font-medium tracking-widest text-raj-beige/90">
             {navLinks.map((link) => (
               <a
                 key={link.label}
                 href={link.href}
-                className="hover:text-raj-gold transition-colors duration-200 relative py-1 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[1px] after:bg-raj-gold hover:after:w-full after:transition-all after:duration-300"
+                className="hover:text-raj-gold transition-colors duration-200 relative py-1"
               >
                 {link.label}
               </a>
             ))}
           </nav>
 
-          {/* Actions: Audio, Phone Direct, Explore */}
-          <div className="hidden lg:flex items-center gap-4">
+          {/* Desktop Right Actions */}
+          <div className="hidden lg:flex items-center gap-3.5">
             <AmbienceAudio />
             
             <a
               href={`tel:${BRAND_DATA.phones[0]}`}
-              className="flex items-center gap-2 text-xs font-mono text-raj-cream/90 hover:text-raj-gold px-3 py-1.5 rounded-full border border-white/10 hover:border-raj-gold/40 bg-white/5 transition-all duration-300"
-              title="Direct Business Call"
+              className="flex items-center gap-2 text-xs font-mono text-raj-cream/90 hover:text-raj-gold px-3 py-1.5 rounded-full border border-white/10 bg-white/5 transition-colors"
             >
               <Phone className="w-3.5 h-3.5 text-raj-gold" />
               <span>{BRAND_DATA.phones[0]}</span>
@@ -81,19 +85,19 @@ export const Navbar: React.FC<NavbarProps> = () => {
 
             <a
               href="#contact-section"
-              className="flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-raj-gold text-raj-bg font-semibold text-xs tracking-wider hover:bg-raj-gold-light transition-all duration-300 shadow-md shadow-raj-gold/10 hover:shadow-raj-gold/25"
+              className="flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-raj-gold text-raj-bg font-semibold text-xs tracking-wider hover:bg-raj-gold-light transition-all shadow-md shadow-raj-gold/15"
             >
               <span>GET IN TOUCH</span>
             </a>
           </div>
 
-          {/* Mobile hamburger button */}
-          <div className="flex lg:hidden items-center gap-3">
+          {/* Mobile Right Controls */}
+          <div className="flex lg:hidden items-center gap-2">
             <AmbienceAudio />
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 rounded-lg bg-white/5 border border-white/10 text-raj-cream hover:text-raj-gold transition-colors"
-              aria-label="Toggle Navigation Menu"
+              className="p-2 rounded-xl bg-white/5 border border-white/10 text-raj-cream hover:text-raj-gold transition-colors active:scale-95"
+              aria-label="Toggle Menu"
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
@@ -101,46 +105,47 @@ export const Navbar: React.FC<NavbarProps> = () => {
         </div>
       </div>
 
-      {/* Mobile Menu Overlay */}
+      {/* Fullscreen Mobile Drawer */}
       {mobileMenuOpen && (
-        <div className="lg:hidden fixed inset-x-0 top-full bg-raj-card/95 backdrop-blur-2xl border-b border-white/10 px-6 py-8 shadow-2xl transition-all">
-          <div className="flex flex-col gap-5 text-sm tracking-wider">
+        <div className="lg:hidden fixed inset-0 top-[60px] bg-raj-bg/95 backdrop-blur-xl z-50 flex flex-col justify-between p-6 animate-in slide-in-from-top-4 duration-200">
+          <div className="flex flex-col gap-3">
             {navLinks.map((link) => (
               <a
                 key={link.label}
                 href={link.href}
                 onClick={() => setMobileMenuOpen(false)}
-                className="py-2 border-b border-white/5 text-raj-cream hover:text-raj-gold flex items-center justify-between"
+                className="py-3 px-4 rounded-xl bg-white/5 border border-white/5 text-raj-cream hover:text-raj-gold flex items-center justify-between text-sm tracking-wider font-medium active:bg-raj-gold/10"
               >
                 <span>{link.label}</span>
-                <Compass className="w-4 h-4 text-raj-gold/50" />
+                <Compass className="w-4 h-4 text-raj-gold/60" />
               </a>
             ))}
+          </div>
 
-            <div className="pt-4 flex flex-col gap-3">
-              <div className="text-xs text-raj-muted font-mono">DIRECT INQUIRY HOTLINES:</div>
-              <div className="flex flex-col gap-2">
-                {BRAND_DATA.phones.map((phone) => (
-                  <a
-                    key={phone}
-                    href={`tel:${phone}`}
-                    className="flex items-center gap-3 px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-raj-cream font-mono text-sm"
-                  >
-                    <Phone className="w-4 h-4 text-raj-gold" />
-                    <span>+91 {phone}</span>
-                  </a>
-                ))}
-              </div>
-
-              <a
-                href="#contact-section"
-                onClick={() => setMobileMenuOpen(false)}
-                className="mt-2 w-full py-3 rounded-xl bg-raj-gold text-raj-bg font-bold text-center tracking-wider text-sm flex items-center justify-center gap-2"
-              >
-                <Sparkles className="w-4 h-4" />
-                <span>EXPLORE CONSULTATION</span>
-              </a>
+          <div className="space-y-3 pt-4 border-t border-white/10">
+            <div className="text-[11px] font-mono text-raj-muted">DIRECT CALL HOTLINES:</div>
+            <div className="grid grid-cols-2 gap-2">
+              {BRAND_DATA.phones.map((phone) => (
+                <a
+                  key={phone}
+                  href={`tel:${phone}`}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center justify-center gap-2 py-3 px-2 rounded-xl bg-white/5 border border-white/10 text-xs font-mono text-raj-cream active:bg-raj-gold/20"
+                >
+                  <Phone className="w-3.5 h-3.5 text-raj-gold" />
+                  <span>{phone}</span>
+                </a>
+              ))}
             </div>
+
+            <a
+              href="#contact-section"
+              onClick={() => setMobileMenuOpen(false)}
+              className="w-full py-3.5 rounded-xl bg-raj-gold text-raj-bg font-bold text-center tracking-wider text-xs flex items-center justify-center gap-2 shadow-lg shadow-raj-gold/20"
+            >
+              <Sparkles className="w-4 h-4" />
+              <span>CONSULTATION INQUIRY</span>
+            </a>
           </div>
         </div>
       )}

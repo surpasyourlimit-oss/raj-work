@@ -96,38 +96,38 @@ export const MaterialConfigurator: React.FC = () => {
   });
 
   return (
-    <section className="relative w-full py-20 bg-raj-card/30 border-b border-white/5">
+    <section className="relative w-full py-16 sm:py-20 bg-raj-card/30 border-b border-white/5">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 sm:gap-6 mb-8 sm:mb-12">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-raj-gold/10 border border-raj-gold/30 text-xs font-mono text-raj-gold uppercase mb-3">
-              <SlidersHorizontal className="w-3.5 h-3.5" />
-              <span>TACTILE ARCHITECTURAL SPECIFICATIONS</span>
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-raj-gold/10 border border-raj-gold/30 text-[10px] sm:text-xs font-mono text-raj-gold uppercase mb-2">
+              <SlidersHorizontal className="w-3 h-3" />
+              <span>ARCHITECTURAL SPECIFICATIONS</span>
             </div>
-            <h2 className="font-serif text-3xl sm:text-4xl font-bold tracking-tight text-raj-cream">
+            <h2 className="font-serif text-2xl sm:text-4xl font-bold tracking-tight text-raj-cream">
               Material & Craft Library
             </h2>
           </div>
           <p className="max-w-md text-xs sm:text-sm text-raj-muted">
-            Inspect authentic material grades across flooring, wall finishes, false ceilings, and charcoal highlighter accents.
+            Inspect authentic material grades across flooring, wall finishes, false ceilings, and charcoal accents.
           </p>
         </div>
 
         {/* Filter Buttons */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-3 mb-8 scrollbar-none">
+        <div className="flex items-center gap-2 overflow-x-auto pb-3 mb-6 sm:mb-8 no-scrollbar">
           <button
             onClick={() => setActiveTab('all')}
-            className={`px-4 py-1.5 rounded-full text-xs font-mono transition-all ${
+            className={`px-3.5 py-1.5 rounded-full text-xs font-mono transition-all flex-shrink-0 ${
               activeTab === 'all' ? 'bg-raj-gold text-raj-bg font-bold' : 'bg-white/5 text-raj-muted hover:text-raj-cream'
             }`}
           >
-            ALL MATERIALS
+            ALL
           </button>
           <button
             onClick={() => setActiveTab('flooring')}
-            className={`px-4 py-1.5 rounded-full text-xs font-mono transition-all ${
+            className={`px-3.5 py-1.5 rounded-full text-xs font-mono transition-all flex-shrink-0 ${
               activeTab === 'flooring' ? 'bg-raj-gold text-raj-bg font-bold' : 'bg-white/5 text-raj-muted hover:text-raj-cream'
             }`}
           >
@@ -135,15 +135,15 @@ export const MaterialConfigurator: React.FC = () => {
           </button>
           <button
             onClick={() => setActiveTab('wall')}
-            className={`px-4 py-1.5 rounded-full text-xs font-mono transition-all ${
+            className={`px-3.5 py-1.5 rounded-full text-xs font-mono transition-all flex-shrink-0 ${
               activeTab === 'wall' ? 'bg-raj-gold text-raj-bg font-bold' : 'bg-white/5 text-raj-muted hover:text-raj-cream'
             }`}
           >
-            WALL FINISH & WALLPAPER
+            WALL & WALLPAPER
           </button>
           <button
             onClick={() => setActiveTab('feature')}
-            className={`px-4 py-1.5 rounded-full text-xs font-mono transition-all ${
+            className={`px-3.5 py-1.5 rounded-full text-xs font-mono transition-all flex-shrink-0 ${
               activeTab === 'feature' ? 'bg-raj-gold text-raj-bg font-bold' : 'bg-white/5 text-raj-muted hover:text-raj-cream'
             }`}
           >
@@ -151,7 +151,7 @@ export const MaterialConfigurator: React.FC = () => {
           </button>
           <button
             onClick={() => setActiveTab('ceiling')}
-            className={`px-4 py-1.5 rounded-full text-xs font-mono transition-all ${
+            className={`px-3.5 py-1.5 rounded-full text-xs font-mono transition-all flex-shrink-0 ${
               activeTab === 'ceiling' ? 'bg-raj-gold text-raj-bg font-bold' : 'bg-white/5 text-raj-muted hover:text-raj-cream'
             }`}
           >
@@ -160,40 +160,37 @@ export const MaterialConfigurator: React.FC = () => {
         </div>
 
         {/* Showcase Grid + Inspector */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6 items-start">
           
-          {/* Material Samples Selection List */}
-          <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {/* Samples List */}
+          <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             {filteredMaterials.map((mat) => (
               <div
                 key={mat.id}
                 onClick={() => setSelectedMaterial(mat)}
-                className={`cursor-pointer p-4 rounded-2xl border transition-all duration-300 flex items-start gap-4 ${
+                className={`cursor-pointer p-3 sm:p-4 rounded-xl sm:rounded-2xl border transition-all duration-200 flex items-start gap-3 active:scale-[0.99] ${
                   selectedMaterial.id === mat.id
-                    ? 'bg-raj-gold/15 border-raj-gold shadow-lg shadow-raj-gold/10'
-                    : 'bg-raj-card/70 border-white/5 hover:border-white/20 hover:bg-raj-card'
+                    ? 'bg-raj-gold/15 border-raj-gold shadow-md'
+                    : 'bg-raj-card/70 border-white/5 hover:border-white/20'
                 }`}
               >
-                {/* Texture Swatch Orb */}
                 <div
-                  className="w-12 h-12 rounded-2xl flex-shrink-0 shadow-inner border border-white/20 relative flex items-center justify-center"
+                  className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex-shrink-0 shadow-inner border border-white/20 relative flex items-center justify-center"
                   style={{ background: mat.colorGrade }}
                 >
                   {selectedMaterial.id === mat.id && (
-                    <Check className="w-4 h-4 text-raj-bg font-black" />
+                    <Check className="w-3.5 h-3.5 text-raj-bg font-black" />
                   )}
                 </div>
 
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-mono text-raj-gold uppercase tracking-wider">
-                      {mat.category}
-                    </span>
-                  </div>
-                  <h4 className="font-serif font-bold text-sm text-raj-cream truncate mt-0.5">
+                  <span className="text-[9px] font-mono text-raj-gold uppercase tracking-wider block">
+                    {mat.category}
+                  </span>
+                  <h4 className="font-serif font-bold text-xs sm:text-sm text-raj-cream truncate mt-0.5">
                     {mat.name}
                   </h4>
-                  <p className="text-xs text-raj-muted truncate mt-1">
+                  <p className="text-[11px] text-raj-muted truncate mt-0.5">
                     {mat.finish}
                   </p>
                 </div>
@@ -201,48 +198,47 @@ export const MaterialConfigurator: React.FC = () => {
             ))}
           </div>
 
-          {/* Active Material Deep Inspection Card */}
-          <div className="lg:col-span-5 glass-panel-gold rounded-3xl p-6 sm:p-8 border border-raj-gold/30 shadow-2xl">
-            <div className="flex items-center justify-between gap-4 mb-6">
-              <span className="px-3 py-1 rounded-full bg-raj-gold/20 text-raj-gold text-[10px] font-mono uppercase tracking-widest">
+          {/* Active Inspection Card */}
+          <div className="lg:col-span-5 glass-panel-gold rounded-2xl sm:rounded-3xl p-5 sm:p-7 border border-raj-gold/30 shadow-xl">
+            <div className="flex items-center justify-between gap-3 mb-4">
+              <span className="px-2.5 py-0.5 rounded-full bg-raj-gold/20 text-raj-gold text-[9px] font-mono uppercase tracking-widest">
                 MATERIAL DOSSIER
               </span>
-              <Sparkles className="w-4 h-4 text-raj-gold" />
+              <Sparkles className="w-3.5 h-3.5 text-raj-gold" />
             </div>
 
-            {/* Visual Swatch Preview Box */}
             <div
-              className="w-full h-36 rounded-2xl mb-6 shadow-2xl border border-white/20 flex flex-col justify-end p-4 relative overflow-hidden"
+              className="w-full h-28 sm:h-32 rounded-xl mb-4 shadow-xl border border-white/20 flex flex-col justify-end p-3 relative overflow-hidden"
               style={{ background: selectedMaterial.colorGrade }}
             >
               <div className="absolute inset-0 bg-black/20" />
               <div className="relative z-10">
-                <span className="text-xs font-serif font-bold text-white uppercase drop-shadow-md">
+                <span className="text-xs font-serif font-bold text-white uppercase drop-shadow">
                   {selectedMaterial.name}
                 </span>
-                <span className="text-[10px] font-mono text-white/80 block">
-                  TEXTURE SPECIFICATION
+                <span className="text-[9px] font-mono text-white/80 block">
+                  TEXTURE PROFILE
                 </span>
               </div>
             </div>
 
-            <h3 className="font-serif text-2xl font-bold text-raj-cream mb-4">
+            <h3 className="font-serif text-lg sm:text-xl font-bold text-raj-cream mb-3">
               {selectedMaterial.name}
             </h3>
 
-            <div className="space-y-4 text-xs font-mono">
-              <div className="p-3 rounded-xl bg-white/5 border border-white/5">
-                <span className="text-raj-muted block text-[10px] uppercase mb-1">SURFACE TEXTURE & FEEL</span>
+            <div className="space-y-2.5 text-xs font-mono">
+              <div className="p-2.5 rounded-xl bg-white/5 border border-white/5">
+                <span className="text-raj-muted block text-[9px] uppercase mb-0.5">SURFACE TEXTURE</span>
                 <span className="text-raj-cream font-sans text-xs">{selectedMaterial.texture}</span>
               </div>
 
-              <div className="p-3 rounded-xl bg-white/5 border border-white/5">
-                <span className="text-raj-muted block text-[10px] uppercase mb-1">RECOMMENDED FINISH PROFILE</span>
+              <div className="p-2.5 rounded-xl bg-white/5 border border-white/5">
+                <span className="text-raj-muted block text-[9px] uppercase mb-0.5">FINISH PROFILE</span>
                 <span className="text-raj-sand font-sans text-xs">{selectedMaterial.finish}</span>
               </div>
 
-              <div className="p-3 rounded-xl bg-white/5 border border-white/5">
-                <span className="text-raj-muted block text-[10px] uppercase mb-1">IDEAL ARCHITECTURAL APPLICATION</span>
+              <div className="p-2.5 rounded-xl bg-white/5 border border-white/5">
+                <span className="text-raj-muted block text-[9px] uppercase mb-0.5">APPLICATION</span>
                 <span className="text-raj-cream font-sans text-xs">{selectedMaterial.bestFor}</span>
               </div>
             </div>
