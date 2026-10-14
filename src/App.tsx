@@ -1,19 +1,14 @@
-import React, { useRef, useState } from 'react';
+import React from 'react';
 import { Navbar } from './components/Navbar';
-import { BackgroundVideoScroller, BackgroundVideoRef } from './components/BackgroundVideoScroller';
 import { ScrollVideoHero } from './components/ScrollVideoHero';
-import { StoryScroller } from './components/StoryScroller';
 import { InteriorSolutions } from './components/InteriorSolutions';
+import { StoryScroller } from './components/StoryScroller';
 import { MaterialConfigurator } from './components/MaterialConfigurator';
 import { ManufacturerSection } from './components/ManufacturerSection';
 import { DirectContact } from './components/DirectContact';
 import { Footer } from './components/Footer';
 
 export const App: React.FC = () => {
-  const videoScrollerRef = useRef<BackgroundVideoRef>(null);
-  const [isCinemaMode, setIsCinemaMode] = useState<boolean>(false);
-  const [activeMilestone, setActiveMilestone] = useState<number>(0);
-
   const scrollToSection = (id: string) => {
     const el = document.getElementById(id);
     if (el) {
@@ -21,68 +16,51 @@ export const App: React.FC = () => {
     }
   };
 
-  const handleMilestoneClick = (percent: number) => {
-    if (videoScrollerRef.current) {
-      videoScrollerRef.current.seekToPercent(percent);
-    }
-  };
-
-  const handleProgressUpdate = (_prog: number, activeM: number) => {
-    setActiveMilestone(activeM);
-  };
-
   return (
-    <div className="relative min-h-screen bg-transparent text-raj-cream flex flex-col selection:bg-raj-gold selection:text-raj-bg font-sans">
+    <div className="min-h-screen bg-[#0A0B0E] text-raj-cream flex flex-col selection:bg-raj-gold selection:text-raj-bg font-sans">
       
-      {/* 1. Master Fixed 4K Background Video across the ENTIRE website */}
-      <BackgroundVideoScroller
-        ref={videoScrollerRef}
-        isCinemaMode={isCinemaMode}
-        onToggleCinemaMode={() => setIsCinemaMode(!isCinemaMode)}
-        onProgressUpdate={handleProgressUpdate}
-      />
+      {/* 1. Top Fixed Navigation Bar */}
+      <Navbar />
 
-      {/* 2. Top Luxury Navigation Bar */}
-      <div className={`relative z-50 transition-opacity duration-500 ${isCinemaMode ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
-        <Navbar />
-      </div>
-
-      {/* 3. Main Translucent Page Flow */}
-      <main className={`relative z-10 flex-grow transition-opacity duration-500 ${isCinemaMode ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+      {/* 2. Scroll-Pinned 4K Video Transformation Hero (450vh)
+          - Video scrubs smoothly with scrolling (0% to 100%)
+          - Only typography floats in and out gracefully over the video
+          - Strict: Only when the video ends (progress 100%), the remaining sections appear below! */}
+      <main className="flex-grow">
         
-        {/* HERO: Cinematic Open Headline & Interactive Transformation Milestone Dock */}
         <ScrollVideoHero
           onExploreClick={() => scrollToSection('services-section')}
           onContactClick={() => scrollToSection('contact-section')}
-          onMilestoneClick={handleMilestoneClick}
-          activeMilestone={activeMilestone}
-          isCinemaMode={isCinemaMode}
         />
 
-        {/* VISUAL TRANSFORMATION STORY SCROLLER */}
-        <StoryScroller
-          onSelectService={() => scrollToSection('services-section')}
-        />
+        {/* 3. STRICT: Content Sections that appear ONLY AFTER the video finishes */}
+        <div id="services-section">
+          <InteriorSolutions />
+        </div>
 
-        {/* 11 COMPREHENSIVE INTERIOR SERVICES */}
-        <InteriorSolutions />
+        <div id="story-section">
+          <StoryScroller
+            onSelectService={() => scrollToSection('services-section')}
+          />
+        </div>
 
-        {/* TACTILE MATERIAL & CRAFT LIBRARY */}
         <div id="materials-section">
           <MaterialConfigurator />
         </div>
 
-        {/* ALSO MANUFACTURER OF (16 PRODUCTS) */}
-        <ManufacturerSection />
+        <div id="manufacturer-section">
+          <ManufacturerSection />
+        </div>
 
-        {/* DIRECT INQUIRY & STATUTORY VERIFICATION */}
-        <DirectContact />
+        <div id="contact-section">
+          <DirectContact />
+        </div>
+
       </main>
 
-      {/* 4. Editorial Translucent Footer */}
-      <div className={`relative z-10 transition-opacity duration-500 ${isCinemaMode ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
-        <Footer />
-      </div>
+      {/* 4. Editorial Verified Footer */}
+      <Footer />
+
     </div>
   );
 };
