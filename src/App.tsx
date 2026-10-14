@@ -1,6 +1,6 @@
 import React from 'react';
 import { Navbar } from './components/Navbar';
-import { ScrollVideoHero } from './components/ScrollVideoHero';
+import { CanvasScrollHero } from './components/CanvasScrollHero';
 import { InteriorSolutions } from './components/InteriorSolutions';
 import { StoryScroller } from './components/StoryScroller';
 import { MaterialConfigurator } from './components/MaterialConfigurator';
@@ -22,18 +22,18 @@ export const App: React.FC = () => {
       {/* 1. Top Fixed Navigation Bar */}
       <Navbar />
 
-      {/* 2. Scroll-Pinned 4K Video Transformation Hero (450vh)
-          - Video scrubs smoothly with scrolling (0% to 100%)
-          - Only typography floats in and out gracefully over the video
-          - Strict: Only when the video ends (progress 100%), the remaining sections appear below! */}
+      {/* 2. Apple-Grade Canvas Frame-Sequence Hero (500vh)
+          - Ultra-smooth 60/120 FPS canvas rendering with ZERO lag
+          - 8 Distinct glassmorphic cards sequentially animating each interior craft
+          - STRICT: Only after all 113 frames finish, the remaining website sections appear! */}
       <main className="flex-grow">
         
-        <ScrollVideoHero
+        <CanvasScrollHero
           onExploreClick={() => scrollToSection('services-section')}
           onContactClick={() => scrollToSection('contact-section')}
         />
 
-        {/* 3. STRICT: Content Sections that appear ONLY AFTER the video finishes */}
+        {/* 3. STRICT: Content Sections appearing strictly AFTER the video transformation ends */}
         <div id="services-section">
           <InteriorSolutions />
         </div>
