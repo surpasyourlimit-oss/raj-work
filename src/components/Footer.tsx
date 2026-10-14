@@ -8,7 +8,7 @@ export const Footer: React.FC = () => {
   };
 
   return (
-    <footer className="relative bg-[#0A0B0D] border-t border-white/10 text-raj-cream pt-16 pb-12 overflow-hidden">
+    <footer className="relative bg-[#08090B] border-t border-white/10 text-raj-cream pt-16 pb-12 overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Top Brand Grid */}
@@ -17,7 +17,7 @@ export const Footer: React.FC = () => {
           {/* Brand Col */}
           <div className="lg:col-span-4 space-y-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-raj-card border border-raj-gold/40 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-xl bg-raj-card border border-raj-gold/40 flex items-center justify-center">
                 <span className="font-serif font-bold text-xl text-raj-gold">R</span>
               </div>
               <div>
@@ -39,7 +39,7 @@ export const Footer: React.FC = () => {
               <span className="text-[10px] font-mono text-raj-muted uppercase block">
                 DIRECT INQUIRY CONTACTS:
               </span>
-              {BRAND_DATA.phones.map(p => (
+              {BRAND_DATA.phones.map((p) => (
                 <a
                   key={p}
                   href={`tel:${p}`}
@@ -53,8 +53,8 @@ export const Footer: React.FC = () => {
 
             {/* Statutory Registrations */}
             <div className="pt-2 space-y-1 text-[11px] font-mono text-raj-muted">
-              <div>GSTIN: <span className="text-raj-sand">{BRAND_DATA.gstin}</span></div>
-              <div>CE NO: <span className="text-raj-sand">{BRAND_DATA.ceNo}</span></div>
+              <div>GSTIN: <span className="text-raj-sand font-medium">{BRAND_DATA.gstin}</span></div>
+              <div>CE NO: <span className="text-raj-sand font-medium">{BRAND_DATA.ceNo}</span></div>
             </div>
           </div>
 
@@ -65,7 +65,7 @@ export const Footer: React.FC = () => {
               <span>INTERIOR SERVICES (11)</span>
             </h4>
             <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-raj-muted font-light">
-              {INTERIOR_SERVICES.map(s => (
+              {INTERIOR_SERVICES.map((s) => (
                 <li key={s.id} className="hover:text-raj-cream transition-colors flex items-center gap-1.5">
                   <span className="text-[10px] font-mono text-raj-gold/60">{s.number}.</span>
                   <a href="#services-section" className="truncate">{s.title}</a>
@@ -80,7 +80,7 @@ export const Footer: React.FC = () => {
               MANUFACTURER OF
             </h4>
             <div className="flex flex-wrap gap-1.5 text-[11px] font-mono text-raj-muted">
-              {MANUFACTURER_ITEMS.map(m => (
+              {MANUFACTURER_ITEMS.map((m) => (
                 <a
                   key={m.id}
                   href="#manufacturer-section"
@@ -98,7 +98,7 @@ export const Footer: React.FC = () => {
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-mono text-raj-muted">
           <div className="flex items-center gap-2">
             <ShieldCheck className="w-4 h-4 text-raj-gold" />
-            <span>© {new Date().getFullYear()} RAJ INTERIOR. All Rights Reserved.</span>
+            <span>© {new Date().getFullYear()} RAJ INTERIOR. Total Interior Solution With Expert Design.</span>
           </div>
 
           <button

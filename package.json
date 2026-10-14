@@ -11,8 +11,9 @@
   "keywords": [
     "raj-interior",
     "interior-design",
-    "threejs",
-    "react"
+    "scroll-video",
+    "react",
+    "tailwind"
   ],
   "author": "Raj Interior",
   "license": "ISC",
@@ -23,15 +24,13 @@
     "lucide-react": "^1.48.0",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
-    "tailwind-merge": "^3.7.0",
-    "three": "^0.186.1"
+    "tailwind-merge": "^3.7.0"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.3.3",
     "@types/canvas-confetti": "^1.9.0",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
-    "@types/three": "^0.186.0",
     "@vitejs/plugin-react": "^6.1.1",
     "autoprefixer": "^10.6.1",
     "postcss": "^8.5.28",

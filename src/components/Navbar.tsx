@@ -15,7 +15,6 @@ export const Navbar: React.FC = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Prevent background scroll when mobile menu is open
   useEffect(() => {
     if (mobileMenuOpen) {
       document.body.style.overflow = 'hidden';
@@ -25,9 +24,9 @@ export const Navbar: React.FC = () => {
   }, [mobileMenuOpen]);
 
   const navLinks = [
-    { label: 'THE STORY', href: '#story-section' },
-    { label: 'SERVICES', href: '#services-section' },
-    { label: '3D STUDIO', href: '#studio-section' },
+    { label: 'TRANSFORMATION', href: '#story-section' },
+    { label: '11 SERVICES', href: '#services-section' },
+    { label: 'MATERIALS', href: '#materials-section' },
     { label: 'MANUFACTURER', href: '#manufacturer-section' },
     { label: 'CONTACT', href: '#contact-section' },
   ];
@@ -36,30 +35,30 @@ export const Navbar: React.FC = () => {
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         scrolled
-          ? 'py-2.5 bg-raj-bg/90 backdrop-blur-md border-b border-white/10 shadow-xl'
-          : 'py-4 bg-gradient-to-b from-raj-bg/95 to-transparent'
+          ? 'py-2.5 bg-raj-bg/92 backdrop-blur-md border-b border-white/10 shadow-xl'
+          : 'py-4 bg-gradient-to-b from-raj-bg/95 via-raj-bg/60 to-transparent'
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between">
           
-          {/* Brand Logo */}
-          <a href="#" className="flex items-center gap-2.5 sm:gap-3.5 group">
-            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-raj-card border border-raj-gold/30 flex items-center justify-center shadow-md group-hover:border-raj-gold transition-colors">
-              <span className="font-serif font-black text-lg sm:text-xl text-raj-gold">R</span>
+          {/* Brand Logo & Title */}
+          <a href="#" className="flex items-center gap-3 group">
+            <div className="w-10 h-10 rounded-xl bg-raj-card border border-raj-gold/30 flex items-center justify-center shadow-md group-hover:border-raj-gold transition-colors">
+              <span className="font-serif font-black text-xl text-raj-gold">R</span>
             </div>
             <div className="flex flex-col">
-              <span className="font-serif text-base sm:text-xl font-bold tracking-wider text-raj-cream group-hover:text-raj-gold transition-colors">
+              <span className="font-serif text-lg sm:text-xl font-bold tracking-wider text-raj-cream group-hover:text-raj-gold transition-colors">
                 {BRAND_DATA.name}
               </span>
-              <span className="text-[8px] sm:text-[9px] tracking-[0.2em] text-raj-gold uppercase font-medium">
+              <span className="text-[9px] tracking-[0.22em] text-raj-gold uppercase font-medium">
                 {BRAND_DATA.descriptor}
               </span>
             </div>
           </a>
 
           {/* Desktop Links */}
-          <nav className="hidden md:flex items-center gap-7 text-xs font-medium tracking-widest text-raj-beige/90">
+          <nav className="hidden md:flex items-center gap-8 text-xs font-medium tracking-widest text-raj-beige/90">
             {navLinks.map((link) => (
               <a
                 key={link.label}
@@ -71,13 +70,14 @@ export const Navbar: React.FC = () => {
             ))}
           </nav>
 
-          {/* Desktop Right Actions */}
+          {/* Desktop Right Controls */}
           <div className="hidden lg:flex items-center gap-3.5">
             <AmbienceAudio />
             
             <a
               href={`tel:${BRAND_DATA.phones[0]}`}
-              className="flex items-center gap-2 text-xs font-mono text-raj-cream/90 hover:text-raj-gold px-3 py-1.5 rounded-full border border-white/10 bg-white/5 transition-colors"
+              className="flex items-center gap-2 text-xs font-mono text-raj-cream/90 hover:text-raj-gold px-3.5 py-1.5 rounded-full border border-white/10 bg-white/5 transition-colors"
+              title="Direct Inquiry"
             >
               <Phone className="w-3.5 h-3.5 text-raj-gold" />
               <span>{BRAND_DATA.phones[0]}</span>
@@ -87,7 +87,7 @@ export const Navbar: React.FC = () => {
               href="#contact-section"
               className="flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-raj-gold text-raj-bg font-semibold text-xs tracking-wider hover:bg-raj-gold-light transition-all shadow-md shadow-raj-gold/15"
             >
-              <span>GET IN TOUCH</span>
+              <span>CONSULT EXPERT</span>
             </a>
           </div>
 
@@ -105,9 +105,9 @@ export const Navbar: React.FC = () => {
         </div>
       </div>
 
-      {/* Fullscreen Mobile Drawer */}
+      {/* Mobile Drawer */}
       {mobileMenuOpen && (
-        <div className="lg:hidden fixed inset-0 top-[60px] bg-raj-bg/95 backdrop-blur-xl z-50 flex flex-col justify-between p-6 animate-in slide-in-from-top-4 duration-200">
+        <div className="lg:hidden fixed inset-0 top-[60px] bg-raj-bg/98 backdrop-blur-2xl z-50 flex flex-col justify-between p-6 animate-in slide-in-from-top-4 duration-200">
           <div className="flex flex-col gap-3">
             {navLinks.map((link) => (
               <a

@@ -1,8 +1,7 @@
 import React from 'react';
 import { Navbar } from './components/Navbar';
-import { HeroStory } from './components/HeroStory';
+import { ScrollVideoHero } from './components/ScrollVideoHero';
 import { StoryScroller } from './components/StoryScroller';
-import { ThreeStudio } from './components/ThreeStudio';
 import { InteriorSolutions } from './components/InteriorSolutions';
 import { MaterialConfigurator } from './components/MaterialConfigurator';
 import { ManufacturerSection } from './components/ManufacturerSection';
@@ -19,35 +18,33 @@ export const App: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-raj-bg text-raj-cream flex flex-col selection:bg-raj-gold selection:text-raj-bg font-sans">
-      
-      {/* Floating Modern Header */}
+      {/* Top Fixed Header */}
       <Navbar />
 
       <main className="flex-grow">
-        {/* 1. Story Landing Hero */}
-        <HeroStory
-          onExploreClick={() => scrollToSection('story-section')}
-          onStudioClick={() => scrollToSection('studio-section')}
+        {/* 1. HERO: Scroll-Based Video Animation */}
+        <ScrollVideoHero
+          onExploreClick={() => scrollToSection('services-section')}
+          onContactClick={() => scrollToSection('contact-section')}
         />
 
-        {/* 2. Visual Storytelling Scroller (12 Scenes: Empty Space to Complete Interior) */}
+        {/* 2. Visual Transformation Story Scroller */}
         <StoryScroller
           onSelectService={() => scrollToSection('services-section')}
         />
 
-        {/* 3. Real-Time 3D Interactive Studio Configurator */}
-        <ThreeStudio />
-
-        {/* 4. Complete Interior Services (11 Verified Disciplines) */}
+        {/* 3. 11 Comprehensive Interior Services */}
         <InteriorSolutions />
 
-        {/* 5. Tactile Material & Craft Matrix */}
-        <MaterialConfigurator />
+        {/* 4. Tactile Material & Craft Library */}
+        <div id="materials-section">
+          <MaterialConfigurator />
+        </div>
 
-        {/* 6. Also Manufacturer Of (16 Verified Products) */}
+        {/* 5. Also Manufacturer Of (16 Products) */}
         <ManufacturerSection />
 
-        {/* 7. Direct Contact & Statutory Verification */}
+        {/* 6. Direct Inquiry & Statutory Verification */}
         <DirectContact />
       </main>
 
