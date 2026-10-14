@@ -96,7 +96,7 @@ export const MaterialConfigurator: React.FC = () => {
   });
 
   return (
-    <section className="relative w-full py-16 sm:py-20 bg-raj-card/30 border-b border-white/5">
+    <section className="relative w-full py-16 sm:py-20 bg-black/40 backdrop-blur-xl border-b border-white/10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header */}
@@ -170,8 +170,8 @@ export const MaterialConfigurator: React.FC = () => {
                 onClick={() => setSelectedMaterial(mat)}
                 className={`cursor-pointer p-3 sm:p-4 rounded-xl sm:rounded-2xl border transition-all duration-200 flex items-start gap-3 active:scale-[0.99] ${
                   selectedMaterial.id === mat.id
-                    ? 'bg-raj-gold/15 border-raj-gold shadow-md'
-                    : 'bg-raj-card/70 border-white/5 hover:border-white/20'
+                    ? 'bg-raj-gold/20 border-raj-gold shadow-md backdrop-blur-md'
+                    : 'bg-black/40 backdrop-blur-md border-white/10 hover:border-white/30'
                 }`}
               >
                 <div

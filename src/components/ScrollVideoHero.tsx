@@ -1,358 +1,159 @@
-import React, { useRef, useEffect, useState, useCallback } from 'react';
-import { ArrowRight, Play, Pause, ChevronDown, PhoneCall, Volume2, VolumeX } from 'lucide-react';
+import React from 'react';
+import { ArrowRight, PhoneCall, Sparkles, ChevronDown, CheckCircle2, ShieldCheck, MessageSquare } from 'lucide-react';
 import { BRAND_DATA } from '../data/rajData';
 
 interface ScrollVideoHeroProps {
   onExploreClick: () => void;
   onContactClick: () => void;
+  onMilestoneClick?: (percent: number) => void;
+  activeMilestone?: number;
+  isCinemaMode?: boolean;
 }
 
 export const ScrollVideoHero: React.FC<ScrollVideoHeroProps> = ({
   onExploreClick,
   onContactClick,
+  onMilestoneClick,
+  activeMilestone = 0,
+  isCinemaMode = false,
 }) => {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const targetTimeRef = useRef<number>(0);
-  const rafIdRef = useRef<number | null>(null);
-  
-  const [progress, setProgress] = useState(0);
-  const [isPlayingAuto, setIsPlayingAuto] = useState(false);
-  const [isMuted, setIsMuted] = useState(true);
-  const [activeMilestone, setActiveMilestone] = useState(0);
-
-  // 4 Milestone points in the transformation sequence
   const milestones = [
-    {
-      id: 'm1',
-      threshold: [0, 0.28],
-      step: '01',
-      badge: 'THE RAW CANVAS',
-      title: BRAND_DATA.name,
-      subtitle: BRAND_DATA.descriptor,
-      tagline: BRAND_DATA.tagline,
-      desc: 'Every master interior begins with raw structural space. An empty architectural canvas awaiting expert design, precision engineering, and complete turnkey execution.',
-    },
-    {
-      id: 'm2',
-      threshold: [0.28, 0.58],
-      step: '02',
-      badge: 'SURFACE & INFRASTRUCTURE',
-      title: 'FOUNDATION TO FINISH',
-      subtitle: 'FLOORING • PAINT & PUTTY • CEILING • ELECTRICAL',
-      tagline: 'Flawless Structural Transformation',
-      desc: 'Watch the space transform: Italian marble and chevron wood flooring, multi-tier cove false ceilings with ambient LED strip profiles, concealed electrical tracks, and velvet-matte putty walls.',
-    },
-    {
-      id: 'm3',
-      threshold: [0.58, 0.85],
-      step: '03',
-      badge: 'BESPOKE CRAFTSMANSHIP',
-      title: 'MODULAR & FURNITURE',
-      subtitle: 'KITCHENS • CUSTOM WOODWORK • FURNISHINGS • FINE ART',
-      tagline: 'Tailored Luxury Living',
-      desc: 'Precision modular kitchens with soft-close tandem systems, handcrafted residential and commercial woodwork, curated sheer drapery curtains, custom wallpapers, and hand-painted canvases.',
-    },
-    {
-      id: 'm4',
-      threshold: [0.85, 1.0],
-      step: '04',
-      badge: 'THE HARMONIOUS FINALE',
-      title: 'COMPLETED RESIDENCE',
-      subtitle: 'TOTAL INTERIOR SOLUTION DELIVERED',
-      tagline: 'Architectural Perfection',
-      desc: 'The complete luxury metamorphosis delivered under one roof. Complete turnkey execution without fragmented contractors, unexpected delays, or compromised quality.',
-    },
+    { id: 'm1', percent: 0.0, step: '01', label: 'RAW CANVAS', desc: 'Bare structural concrete space' },
+    { id: 'm2', percent: 0.32, step: '02', label: 'SURFACE & CEILING', desc: 'Flooring, POP ceiling & electrical' },
+    { id: 'm3', percent: 0.65, step: '03', label: 'MODULAR & WOODWORK', desc: 'Modular kitchen, wardrobes & louvers' },
+    { id: 'm4', percent: 1.0, step: '04', label: 'COMPLETED RESIDENCE', desc: 'Full turnkey luxury interior delivered' },
   ];
 
-  // Update active milestone
-  useEffect(() => {
-    const idx = milestones.findIndex(
-      (m) => progress >= m.threshold[0] && progress <= m.threshold[1]
-    );
-    if (idx !== -1 && idx !== activeMilestone) {
-      setActiveMilestone(idx);
-    }
-  }, [progress, activeMilestone, milestones]);
-
-  // Performant requestAnimationFrame video frame updates
-  const updateVideoFrame = useCallback(() => {
-    const video = videoRef.current;
-    if (video && Number.isFinite(video.duration) && video.duration > 0) {
-      const diff = Math.abs(targetTimeRef.current - video.currentTime);
-      if (diff > 0.02) {
-        if ('fastSeek' in video && typeof (video as { fastSeek?: (t: number) => void }).fastSeek === 'function') {
-          (video as { fastSeek: (t: number) => void }).fastSeek(targetTimeRef.current);
-        } else {
-          video.currentTime = targetTimeRef.current;
-        }
-      }
-    }
-  }, []);
-
-  // Scroll listener for video scrubbing
-  const handleScroll = useCallback(() => {
-    if (isPlayingAuto) return;
-    const container = containerRef.current;
-    const video = videoRef.current;
-    if (!container || !video || !video.duration) return;
-
-    const rect = container.getBoundingClientRect();
-    const windowHeight = window.innerHeight;
-    const totalScrollable = rect.height - windowHeight;
-
-    if (totalScrollable <= 0) return;
-
-    // Calculate progress between 0 and 1
-    const currentProgress = Math.min(
-      Math.max(-rect.top / totalScrollable, 0),
-      1
-    );
-
-    setProgress(currentProgress);
-
-    // Scrub video time smoothly using rAF
-    if (Number.isFinite(video.duration) && video.duration > 0) {
-      targetTimeRef.current = currentProgress * video.duration;
-      if (!rafIdRef.current) {
-        rafIdRef.current = requestAnimationFrame(() => {
-          updateVideoFrame();
-          rafIdRef.current = null;
-        });
-      }
-    }
-  }, [isPlayingAuto, updateVideoFrame]);
-
-  useEffect(() => {
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    handleScroll();
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-      if (rafIdRef.current) {
-        cancelAnimationFrame(rafIdRef.current);
-      }
-    };
-  }, [handleScroll]);
-
-  // Jump to specific milestone
-  const jumpToMilestone = (milestoneIndex: number) => {
-    const container = containerRef.current;
-    if (!container) return;
-
-    setIsPlayingAuto(false);
-    if (videoRef.current) {
-      videoRef.current.pause();
-    }
-
-    const rect = container.getBoundingClientRect();
-    const scrollTop = window.scrollY || window.pageYOffset;
-    const totalScrollable = container.clientHeight - window.innerHeight;
-    const targetProgress = milestones[milestoneIndex].threshold[0] + 0.05;
-
-    const targetScrollY = scrollTop + rect.top + targetProgress * totalScrollable;
-    window.scrollTo({ top: targetScrollY, behavior: 'smooth' });
-  };
-
-  // Auto-play toggle
-  const toggleAutoPlay = () => {
-    const video = videoRef.current;
-    if (!video) return;
-
-    if (isPlayingAuto) {
-      video.pause();
-      setIsPlayingAuto(false);
-    } else {
-      video.play().then(() => {
-        setIsPlayingAuto(true);
-      }).catch((err) => {
-        console.warn('Autoplay prevented:', err);
-      });
-    }
-  };
-
-  const toggleSound = () => {
-    const video = videoRef.current;
-    if (!video) return;
-    video.muted = !isMuted;
-    setIsMuted(!isMuted);
-  };
-
-  const current = milestones[activeMilestone] || milestones[0];
-
   return (
-    <section
-      ref={containerRef}
-      className="relative w-full h-[360vh] bg-raj-bg"
-    >
-      {/* Sticky Fullscreen Video Canvas Viewport */}
-      <div className="sticky top-0 h-screen w-full overflow-hidden flex items-center justify-center">
-        
-        {/* Background Cinematic Video */}
-        <div className="absolute inset-0 w-full h-full bg-[#0C0D0F]">
-          <video
-            ref={videoRef}
-            src="./assets/hero_scroll_video.mp4"
-            playsInline
-            muted={isMuted}
-            preload="auto"
-            className="w-full h-full object-cover transform scale-102"
-          />
-
-          {/* Deep Architectural Dark Vignette Overlays for Maximum Legibility */}
-          <div className="absolute inset-0 bg-gradient-to-t from-raj-bg via-raj-bg/40 to-raj-bg/75 pointer-events-none" />
-          <div className="absolute inset-0 bg-gradient-to-r from-raj-bg/90 via-raj-bg/50 to-transparent lg:w-3/5 pointer-events-none" />
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,rgba(12,13,15,0.75)_85%)] pointer-events-none" />
-        </div>
-
-        {/* Top Controls Overlay */}
-        <div className="absolute top-20 sm:top-24 left-4 sm:left-8 right-4 sm:right-8 z-20 flex items-center justify-between pointer-events-none">
-          <div className="pointer-events-auto flex items-center gap-2 px-3 py-1.5 rounded-full bg-raj-bg/85 backdrop-blur-md border border-white/10 text-[10px] sm:text-xs font-mono text-raj-sand shadow-lg">
-            <span className="w-2 h-2 rounded-full bg-raj-gold animate-pulse" />
-            <span className="uppercase tracking-widest">{current.badge}</span>
+    <section className="relative w-full min-h-screen flex flex-col justify-between pt-24 pb-8 px-4 sm:px-6 lg:px-8 select-none">
+      
+      {/* Floating Hero Content Overlay:
+          NO SOLID POSTER BOX / NO CARD BLOCKING THE VIDEO.
+          Uses pure, crystal-clear typography with high-contrast text shadows so the video shines 100% */}
+      <div
+        className={`max-w-7xl mx-auto w-full my-auto transition-all duration-500 ${
+          isCinemaMode ? 'opacity-0 pointer-events-none translate-y-4' : 'opacity-100 translate-y-0'
+        }`}
+      >
+        <div className="max-w-3xl">
+          
+          {/* Top Verified Identity Pill */}
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-black/45 backdrop-blur-xl border border-raj-gold/30 text-[11px] sm:text-xs font-mono text-raj-sand mb-4 shadow-xl">
+            <span className="w-2 h-2 rounded-full bg-raj-gold animate-ping" />
+            <span className="font-bold tracking-wider text-raj-gold uppercase">{BRAND_DATA.name}</span>
+            <span className="text-white/30">•</span>
+            <span className="tracking-widest uppercase text-white/80">{BRAND_DATA.descriptor}</span>
           </div>
 
-          <div className="pointer-events-auto flex items-center gap-2">
-            {/* Auto play toggle */}
+          {/* Grand Hero Headline */}
+          <h1 className="font-serif text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-white tracking-tight leading-[1.08] drop-shadow-[0_8px_24px_rgba(0,0,0,0.95)]">
+            Architectural <br />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-raj-sand via-raj-gold to-raj-gold-light drop-shadow-sm">
+              Metamorphosis
+            </span>
+          </h1>
+
+          {/* Locked Tagline */}
+          <p className="font-serif text-base sm:text-2xl text-raj-sand/95 font-light mt-3 sm:mt-4 drop-shadow-[0_4px_16px_rgba(0,0,0,0.9)] max-w-2xl leading-snug">
+            "{BRAND_DATA.tagline}"
+          </p>
+
+          {/* Turnkey Scope Description */}
+          <p className="text-xs sm:text-sm md:text-base text-white/85 font-light mt-3 max-w-xl leading-relaxed drop-shadow-[0_4px_12px_rgba(0,0,0,0.9)]">
+            Watch raw structural brick and concrete transform into a completed luxury residence. 
+            All 11 interior disciplines executed under one unified roof with in-house fabrication.
+          </p>
+
+          {/* Quick Pillar Badges */}
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3 mt-4 text-[10px] sm:text-xs font-mono">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/40 backdrop-blur-md border border-white/15 text-white/90">
+              <CheckCircle2 className="w-3.5 h-3.5 text-raj-gold" />
+              11 In-House Crafts
+            </span>
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/40 backdrop-blur-md border border-white/15 text-white/90">
+              <ShieldCheck className="w-3.5 h-3.5 text-raj-gold" />
+              GST & Trade Registered
+            </span>
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/40 backdrop-blur-md border border-white/15 text-white/90">
+              <Sparkles className="w-3.5 h-3.5 text-raj-gold" />
+              16 Mfg Items Direct
+            </span>
+          </div>
+
+          {/* Floating Action Buttons */}
+          <div className="flex flex-wrap items-center gap-3 sm:gap-4 mt-6 sm:mt-8">
             <button
-              onClick={toggleAutoPlay}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-raj-bg/85 backdrop-blur-md border border-white/10 text-[11px] font-mono text-raj-cream hover:text-raj-gold transition-colors shadow-lg active:scale-95"
-              title={isPlayingAuto ? 'Switch to Scroll Scrubbing' : 'Auto Play Video'}
+              onClick={onExploreClick}
+              className="h-12 px-7 rounded-full bg-gradient-to-r from-raj-gold via-raj-gold-light to-raj-gold text-raj-bg font-black text-xs sm:text-sm tracking-widest uppercase transition-all flex items-center gap-2 shadow-2xl shadow-raj-gold/20 hover:scale-[1.03] active:scale-95 cursor-pointer"
             >
-              {isPlayingAuto ? (
-                <>
-                  <Pause className="w-3.5 h-3.5 text-raj-gold" />
-                  <span className="hidden sm:inline">PAUSE VIDEO</span>
-                </>
-              ) : (
-                <>
-                  <Play className="w-3.5 h-3.5 text-raj-gold" />
-                  <span className="hidden sm:inline">PLAY VIDEO</span>
-                </>
-              )}
+              <span>EXPLORE 11 SERVICES</span>
+              <ArrowRight className="w-4 h-4" />
             </button>
 
-            {/* Sound toggle */}
             <button
-              onClick={toggleSound}
-              className="p-2 rounded-full bg-raj-bg/85 backdrop-blur-md border border-white/10 text-raj-cream hover:text-raj-gold transition-colors shadow-lg active:scale-95"
-              title={isMuted ? 'Unmute' : 'Mute'}
+              onClick={onContactClick}
+              className="h-12 px-6 rounded-full bg-black/50 hover:bg-black/70 text-raj-cream border border-white/20 text-xs sm:text-sm font-semibold tracking-wider transition-all flex items-center gap-2 backdrop-blur-xl hover:border-raj-gold/50 active:scale-95 cursor-pointer shadow-xl"
             >
-              {isMuted ? (
-                <VolumeX className="w-3.5 h-3.5" />
-              ) : (
-                <Volume2 className="w-3.5 h-3.5 text-raj-gold" />
-              )}
+              <PhoneCall className="w-4 h-4 text-raj-gold" />
+              <span>DIRECT INQUIRY</span>
             </button>
+
+            <a
+              href={`https://wa.me/91${BRAND_DATA.phones[0]}?text=${encodeURIComponent('Hello Raj Interior, I would like to consult about an interior project.')}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="h-12 px-5 rounded-full bg-[#25D366]/20 hover:bg-[#25D366]/30 text-emerald-300 border border-emerald-500/30 text-xs sm:text-sm font-semibold tracking-wider transition-all flex items-center gap-2 backdrop-blur-xl active:scale-95 cursor-pointer shadow-xl"
+            >
+              <MessageSquare className="w-4 h-4 text-emerald-400" />
+              <span className="hidden sm:inline">WHATSAPP CONSULT</span>
+            </a>
           </div>
+
         </div>
+      </div>
 
-        {/* Central Narrative Glass Card (Dynamic by Milestone) */}
-        <div className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-          <div className="max-w-2xl glass-panel-gold rounded-3xl p-6 sm:p-10 shadow-2xl transition-all duration-500 transform backdrop-blur-md border border-raj-gold/30">
+      {/* Bottom Floating Interactive Timeline Controller:
+          Ultra-sleek, glassy dock that allows users to jump across 4 transformation phases */}
+      <div
+        className={`max-w-7xl mx-auto w-full transition-all duration-500 ${
+          isCinemaMode ? 'opacity-0 pointer-events-none' : 'opacity-100'
+        }`}
+      >
+        <div className="p-2 sm:p-3 rounded-2xl sm:rounded-full bg-black/60 backdrop-blur-2xl border border-white/15 shadow-2xl">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-4 px-2">
             
-            {/* Milestone Header */}
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <span className="font-serif text-3xl sm:text-4xl font-black text-raj-gold">
-                  {current.step}
-                </span>
-                <span className="text-xs font-mono text-raj-muted">
-                  / 04 TRANSFORMATION PHASES
-                </span>
-              </div>
-
-              <span className="px-3 py-1 rounded-full bg-raj-gold/15 border border-raj-gold/30 text-[10px] sm:text-xs font-mono text-raj-sand uppercase">
-                SCROLL TO SCRUB VIDEO
-              </span>
-            </div>
-
-            {/* Title & Tagline */}
-            <div className="mb-4">
-              <span className="text-[11px] sm:text-xs font-mono tracking-widest text-raj-gold-light uppercase block mb-1">
-                {current.subtitle}
-              </span>
-              <h1 className="font-serif text-2xl sm:text-4xl lg:text-5xl font-black tracking-tight text-white leading-tight">
-                {current.title}
-              </h1>
-              <p className="font-serif text-sm sm:text-lg text-raj-sand font-light mt-1">
-                "{current.tagline}"
-              </p>
-            </div>
-
-            <div className="w-16 h-[2px] bg-raj-gold/60 my-4" />
-
-            {/* Description */}
-            <p className="text-xs sm:text-sm text-raj-cream/90 leading-relaxed font-light mb-6">
-              {current.desc}
-            </p>
-
-            {/* Actions */}
-            <div className="flex flex-wrap items-center gap-3">
-              <button
-                onClick={onExploreClick}
-                className="px-6 py-3 rounded-full bg-raj-gold text-raj-bg font-bold text-xs tracking-widest uppercase hover:bg-raj-gold-light transition-all flex items-center gap-2 shadow-lg shadow-raj-gold/25 active:scale-95 cursor-pointer"
-              >
-                <span>EXPLORE 11 CRAFTS</span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
-
-              <button
-                onClick={onContactClick}
-                className="px-5 py-3 rounded-full bg-white/5 hover:bg-white/10 text-raj-cream border border-white/15 text-xs font-semibold tracking-widest uppercase transition-all flex items-center gap-2 active:scale-95 cursor-pointer"
-              >
-                <PhoneCall className="w-3.5 h-3.5 text-raj-gold" />
-                <span>DIRECT INQUIRY</span>
-              </button>
-            </div>
-
-          </div>
-        </div>
-
-        {/* Bottom Timeline & Milestones Bar */}
-        <div className="absolute bottom-6 left-4 sm:left-8 right-4 sm:right-8 z-20">
-          <div className="max-w-4xl mx-auto glass-panel p-3 sm:p-4 rounded-2xl border border-white/10 flex flex-col gap-2.5 shadow-2xl">
-            
-            {/* Interactive Progress Bar */}
-            <div className="w-full bg-white/10 h-1.5 rounded-full overflow-hidden relative">
-              <div
-                className="h-full bg-gradient-to-r from-raj-sand via-raj-gold to-raj-gold-light transition-all duration-150 rounded-full"
-                style={{ width: `${Math.round(progress * 100)}%` }}
-              />
-            </div>
-
-            {/* Milestones Buttons */}
-            <div className="grid grid-cols-4 gap-2 text-center">
+            {/* 4 Interactive Milestone Buttons */}
+            <div className="grid grid-cols-2 sm:flex sm:items-center gap-1.5 sm:gap-2 w-full sm:w-auto">
               {milestones.map((m, idx) => (
                 <button
                   key={m.id}
-                  onClick={() => jumpToMilestone(idx)}
-                  className={`py-1.5 px-1 sm:px-2 rounded-xl text-[10px] sm:text-xs font-mono transition-all border cursor-pointer ${
+                  onClick={() => onMilestoneClick && onMilestoneClick(m.percent)}
+                  className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl sm:rounded-full text-[10px] sm:text-xs font-mono transition-all text-left sm:text-center cursor-pointer flex items-center gap-2 ${
                     activeMilestone === idx
-                      ? 'bg-raj-gold text-raj-bg font-bold border-raj-gold shadow-md'
-                      : 'bg-white/5 text-raj-muted hover:text-raj-cream border-white/5 hover:bg-white/10'
+                      ? 'bg-raj-gold text-raj-bg font-bold shadow-lg shadow-raj-gold/30'
+                      : 'bg-white/[0.06] hover:bg-white/[0.12] text-white/80 hover:text-white border border-white/10'
                   }`}
                 >
-                  <span className="block opacity-60 text-[9px]">PHASE {m.step}</span>
-                  <span className="truncate block font-semibold">{m.badge.split(' ')[0]}</span>
+                  <span className={`w-1.5 h-1.5 rounded-full ${activeMilestone === idx ? 'bg-raj-bg' : 'bg-raj-gold'}`} />
+                  <span className="font-bold">{m.step}.</span>
+                  <span className="truncate">{m.label}</span>
                 </button>
               ))}
             </div>
 
-            {/* Bottom Helper Hint */}
-            <div className="flex items-center justify-between text-[10px] font-mono text-raj-muted pt-1 px-1">
-              <div className="flex items-center gap-1.5 text-raj-sand">
-                <ChevronDown className="w-3.5 h-3.5 text-raj-gold animate-bounce" />
-                <span>SCROLL DOWN TO ADVANCE VIDEO ANIMATION</span>
-              </div>
-              <span className="text-raj-gold font-bold">
-                {Math.round(progress * 100)}% COMPLETE
-              </span>
-            </div>
+            {/* Scroll Down Prompt */}
+            <button
+              onClick={onExploreClick}
+              className="flex items-center gap-1.5 text-[11px] font-mono text-raj-sand hover:text-raj-gold transition-colors py-1 px-3 cursor-pointer"
+            >
+              <span className="hidden md:inline uppercase tracking-widest text-[10px]">SCROLL OR CLICK TO EXPLORE</span>
+              <ChevronDown className="w-4 h-4 text-raj-gold animate-bounce" />
+            </button>
 
           </div>
         </div>
-
       </div>
+
     </section>
   );
 };

@@ -29,7 +29,7 @@ export const InteriorSolutions: React.FC = () => {
   });
 
   return (
-    <section id="services-section" className="relative w-full py-16 sm:py-24 bg-raj-bg border-b border-white/5">
+    <section id="services-section" className="relative w-full py-16 sm:py-24 bg-black/50 backdrop-blur-xl border-y border-white/10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header */}
@@ -72,7 +72,7 @@ export const InteriorSolutions: React.FC = () => {
             <div
               key={service.id}
               onClick={() => setSelectedService(service)}
-              className="group cursor-pointer rounded-2xl sm:rounded-3xl overflow-hidden glass-panel border border-white/10 hover:border-raj-gold/50 transition-all duration-300 flex flex-col justify-between active:scale-[0.99]"
+              className="group cursor-pointer rounded-2xl sm:rounded-3xl overflow-hidden bg-black/40 backdrop-blur-xl border border-white/10 hover:border-raj-gold/50 transition-all duration-300 flex flex-col justify-between active:scale-[0.99] shadow-xl"
             >
               <div className="relative h-48 sm:h-60 overflow-hidden">
                 <img
@@ -81,7 +81,7 @@ export const InteriorSolutions: React.FC = () => {
                   loading="lazy"
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-raj-card via-raj-card/30 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
 
                 <div className="absolute top-3 left-3 w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-raj-bg/90 backdrop-blur-md border border-white/15 flex items-center justify-center">
                   <span className="font-serif font-black text-xs sm:text-sm text-raj-gold">

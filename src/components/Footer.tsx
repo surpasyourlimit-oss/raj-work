@@ -8,7 +8,7 @@ export const Footer: React.FC = () => {
   };
 
   return (
-    <footer className="relative bg-[#08090B] border-t border-white/10 text-raj-cream pt-16 pb-12 overflow-hidden">
+    <footer className="relative bg-black/75 backdrop-blur-2xl border-t border-white/10 text-raj-cream pt-16 pb-12 overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Top Brand Grid */}

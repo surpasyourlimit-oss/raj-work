@@ -34,7 +34,7 @@ export const DirectContact: React.FC = () => {
   };
 
   return (
-    <section id="contact-section" className="relative w-full py-16 sm:py-24 bg-raj-bg border-b border-white/5">
+    <section id="contact-section" className="relative w-full py-16 sm:py-24 bg-black/55 backdrop-blur-xl border-b border-white/10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header */}

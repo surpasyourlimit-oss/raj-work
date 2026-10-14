@@ -18,7 +18,7 @@ export const ManufacturerSection: React.FC = () => {
   });
 
   return (
-    <section id="manufacturer-section" className="relative w-full py-16 sm:py-24 bg-[#090A0C] border-b border-white/5 overflow-hidden">
+    <section id="manufacturer-section" className="relative w-full py-16 sm:py-24 bg-black/50 backdrop-blur-xl border-b border-white/10 overflow-hidden">
       
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
