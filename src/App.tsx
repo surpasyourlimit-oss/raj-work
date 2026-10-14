@@ -43,12 +43,12 @@ export const App: React.FC = () => {
       />
 
       {/* 2. Top Luxury Navigation Bar */}
-      <div className={`transition-opacity duration-500 ${isCinemaMode ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+      <div className={`relative z-50 transition-opacity duration-500 ${isCinemaMode ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
         <Navbar />
       </div>
 
       {/* 3. Main Translucent Page Flow */}
-      <main className={`flex-grow transition-opacity duration-500 ${isCinemaMode ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+      <main className={`relative z-10 flex-grow transition-opacity duration-500 ${isCinemaMode ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
         
         {/* HERO: Cinematic Open Headline & Interactive Transformation Milestone Dock */}
         <ScrollVideoHero
@@ -80,7 +80,7 @@ export const App: React.FC = () => {
       </main>
 
       {/* 4. Editorial Translucent Footer */}
-      <div className={`transition-opacity duration-500 ${isCinemaMode ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+      <div className={`relative z-10 transition-opacity duration-500 ${isCinemaMode ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
         <Footer />
       </div>
     </div>

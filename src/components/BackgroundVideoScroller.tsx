@@ -28,12 +28,41 @@ export const BackgroundVideoScroller = forwardRef<BackgroundVideoRef, Background
   const targetTimeRef = useRef<number>(0);
   const rafIdRef = useRef<number | null>(null);
 
-  const [isPlayingAuto, setIsPlayingAuto] = useState<boolean>(false);
+  // Auto-play is TRUE by default so video plays continuously on load
+  const [isPlayingAuto, setIsPlayingAuto] = useState<boolean>(true);
   const [isMuted, setIsMuted] = useState<boolean>(true);
   const [videoDuration, setVideoDuration] = useState<number>(0);
   const [progress, setProgress] = useState<number>(0);
 
-  // Sync seek to video smoothly using requestAnimationFrame
+  // Auto-play on mount with robust browser autoplay policy handling
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    video.muted = true;
+    setIsMuted(true);
+
+    const startPlay = () => {
+      // Seek slightly past 0.05s to ensure no initial black frame
+      if (video.currentTime === 0) {
+        video.currentTime = 0.05;
+      }
+      video.play().then(() => {
+        setIsPlayingAuto(true);
+      }).catch((err) => {
+        console.warn('Initial autoplay error:', err);
+      });
+    };
+
+    // If already loaded
+    if (video.readyState >= 2) {
+      startPlay();
+    } else {
+      video.addEventListener('canplay', startPlay, { once: true });
+    }
+  }, []);
+
+  // Smooth seek helper using requestAnimationFrame
   const applyVideoTime = useCallback((time: number) => {
     const video = videoRef.current;
     if (!video || !Number.isFinite(video.duration) || video.duration <= 0) return;
@@ -60,11 +89,11 @@ export const BackgroundVideoScroller = forwardRef<BackgroundVideoRef, Background
   const seekToPercent = useCallback((pct: number) => {
     const video = videoRef.current;
     if (!video || !video.duration) return;
-    setIsPlayingAuto(false);
-    video.pause();
     const clamped = Math.max(0, Math.min(pct, 1));
     setProgress(clamped);
     applyVideoTime(clamped * video.duration);
+    // Keep playing from the sought position
+    video.play().then(() => setIsPlayingAuto(true)).catch(() => {});
   }, [applyVideoTime]);
 
   const togglePlay = useCallback(() => {
@@ -109,53 +138,19 @@ export const BackgroundVideoScroller = forwardRef<BackgroundVideoRef, Background
     duration: videoDuration,
   }), [seekToPercent, togglePlay, toggleSound, isPlayingAuto, isMuted, videoDuration]);
 
-  // Handle scroll-based video scrubbing across the entire page
-  useEffect(() => {
-    const handleScroll = () => {
-      // If user is intentionally playing the video, do not override unless user scrolls significantly
-      if (isPlayingAuto) return;
-
-      const video = videoRef.current;
-      if (!video || !video.duration) return;
-
-      const totalScrollable = document.documentElement.scrollHeight - window.innerHeight;
-      if (totalScrollable <= 0) return;
-
-      const currentProgress = Math.min(Math.max(window.scrollY / totalScrollable, 0), 1);
-      setProgress(currentProgress);
-
-      // Determine active milestone: 0 -> 0.28 (Raw), 0.28 -> 0.58 (Surface), 0.58 -> 0.85 (Modular), 0.85 -> 1.0 (Finished)
-      let activeM = 0;
-      if (currentProgress >= 0.85) activeM = 3;
-      else if (currentProgress >= 0.58) activeM = 2;
-      else if (currentProgress >= 0.28) activeM = 1;
-
-      if (onProgressUpdate) {
-        onProgressUpdate(currentProgress, activeM);
-      }
-
-      applyVideoTime(currentProgress * video.duration);
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-      if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current);
-    };
-  }, [isPlayingAuto, applyVideoTime, onProgressUpdate]);
-
   // Handle video metadata loaded
   const handleLoadedMetadata = () => {
-    if (videoRef.current) {
-      setVideoDuration(videoRef.current.duration);
-      // Ensure muted for autoplay compliance
-      videoRef.current.muted = isMuted;
+    const video = videoRef.current;
+    if (video) {
+      setVideoDuration(video.duration);
+      video.muted = isMuted;
+      video.play().then(() => setIsPlayingAuto(true)).catch(() => {});
     }
   };
 
   // Video timeupdate when playing auto
   const handleTimeUpdate = () => {
-    if (!isPlayingAuto || !videoRef.current || !videoDuration) return;
+    if (!videoRef.current || !videoDuration) return;
     const currProgress = videoRef.current.currentTime / videoDuration;
     setProgress(currProgress);
 
@@ -171,29 +166,32 @@ export const BackgroundVideoScroller = forwardRef<BackgroundVideoRef, Background
 
   return (
     <>
-      {/* 1. Master Fixed Background Video Container (Zero 3D lag, native 4K GPU rendering) */}
-      <div className="fixed inset-0 w-full h-full -z-20 overflow-hidden bg-[#0A0B0E] pointer-events-none select-none">
+      {/* 1. Master Fixed Background Video Container
+          CRITICAL: z-index is z-0 (ABOVE body background, NOT -z-20 which hides behind body!)
+          Zero 3D lag, native 4K GPU rendering */}
+      <div className="fixed inset-0 w-full h-full z-0 overflow-hidden pointer-events-none select-none bg-[#0A0B0E]">
         <video
           ref={videoRef}
-          src="./assets/hero_scroll_video.mp4"
+          src="/assets/hero_scroll_video.mp4"
+          autoPlay
           playsInline
           loop
           muted={isMuted}
           preload="auto"
           onLoadedMetadata={handleLoadedMetadata}
           onTimeUpdate={handleTimeUpdate}
-          className="w-full h-full object-cover scale-[1.01] will-change-transform filter brightness-95"
+          className="w-full h-full object-cover scale-[1.01] will-change-transform"
         />
 
-        {/* Cinematic Translucent Vignette Overlays:
-            Keeps the video bright and completely visible, while enhancing readability of floating typography */}
-        <div className="absolute inset-0 bg-black/25 pointer-events-none transition-opacity duration-700" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0A0B0E]/90 via-transparent to-[#0A0B0E]/50 pointer-events-none" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,rgba(10,11,14,0.5)_90%)] pointer-events-none" />
+        {/* Lightweight Cinematic Translucent Vignette Overlays:
+            Keeps the video 100% luminous, vibrant and clear, while providing high-contrast backdrop for text */}
+        <div className="absolute inset-0 bg-black/20 pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/40 pointer-events-none" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_20%,rgba(0,0,0,0.5)_95%)] pointer-events-none" />
       </div>
 
       {/* 2. Floating Quick Controls Bar (Top Right, under Navbar) */}
-      <div className="fixed top-20 right-4 sm:right-8 z-40 flex items-center gap-1.5 p-1 rounded-full bg-black/60 backdrop-blur-xl border border-white/15 shadow-2xl transition-all duration-300">
+      <div className="fixed top-20 right-4 sm:right-8 z-40 flex items-center gap-1.5 p-1 rounded-full bg-black/60 backdrop-blur-xl border border-white/20 shadow-2xl transition-all duration-300">
         
         {/* Cinema Mode Toggle: Hides all UI text for pure video viewing */}
         <button
@@ -215,7 +213,7 @@ export const BackgroundVideoScroller = forwardRef<BackgroundVideoRef, Background
         <button
           onClick={togglePlay}
           className="p-1.5 sm:px-2.5 sm:py-1.5 rounded-full text-raj-cream hover:text-raj-gold hover:bg-white/10 transition-colors flex items-center gap-1.5 text-[11px] font-mono cursor-pointer"
-          title={isPlayingAuto ? 'Pause & Switch to Scroll Scrub' : 'Play Video Continuously'}
+          title={isPlayingAuto ? 'Pause Video' : 'Play Video'}
         >
           {isPlayingAuto ? (
             <>
