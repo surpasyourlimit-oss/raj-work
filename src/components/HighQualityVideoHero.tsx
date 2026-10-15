@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
-import { ChevronDown, ArrowRight, PhoneCall, Play, Pause, Eye, EyeOff, CheckCircle2, Volume2, VolumeX, Sparkles } from 'lucide-react';
+import { ChevronDown, ArrowRight, PhoneCall, Play, Pause, Eye, EyeOff, Volume2, VolumeX, Sparkles } from 'lucide-react';
 import { BRAND_DATA } from '../data/rajData';
 
 interface HighQualityVideoHeroProps {
@@ -11,12 +11,8 @@ interface CraftStage {
   id: string;
   stageNumber: string;
   range: [number, number, number, number]; // [start, peakStart, peakEnd, end]
-  badge: string;
-  discipline: string;
   title: string;
-  tagline: string;
-  specs: string[];
-  status: string;
+  shortLabel: string;
   side: 'left' | 'right' | 'center';
 }
 
@@ -25,96 +21,64 @@ const CRAFT_STAGES: CraftStage[] = [
     id: 'stage-1',
     stageNumber: '01',
     range: [0.00, 0.02, 0.11, 0.15],
-    badge: 'PHASE 01 • DEMOLITION & LAYOUT',
-    discipline: 'STRUCTURAL ARCHITECTURE',
-    title: 'Raw Concrete Canvas & Space Planning',
-    tagline: 'Precision laser leveling, structural column assessment & spatial CAD layout.',
-    specs: ['Site Survey & Laser Leveling', 'Wall Demolition & Clearance', 'Column Reinforcement'],
-    status: 'IN-HOUSE CRAFT',
+    title: 'Space Planning & Architecture',
+    shortLabel: 'Planning',
     side: 'left',
   },
   {
     id: 'stage-2',
     stageNumber: '02',
     range: [0.15, 0.18, 0.25, 0.29],
-    badge: 'PHASE 02 • SAFETY & CABLING',
-    discipline: 'CONCEALED ELECTRICAL',
-    title: 'Concealed Conduits & Fire-Resistant Wiring',
-    tagline: 'FR-LSH copper wiring, concealed wall channelling & modular gang-boxes.',
-    specs: ['Fire-Resistant Multi-Strand Wire', 'Concealed PVC Channelling', 'Heavy-Load HVAC Circuits'],
-    status: 'IN-HOUSE CRAFT',
+    title: 'Concealed Electrical & Cabling',
+    shortLabel: 'Electrical',
     side: 'right',
   },
   {
     id: 'stage-3',
     stageNumber: '03',
     range: [0.29, 0.32, 0.39, 0.43],
-    badge: 'PHASE 03 • CEILING & COVE LIGHTS',
-    discipline: 'POP & GYPSUM CEILING',
-    title: 'Multi-Tier False Ceiling & Ambient Coves',
-    tagline: 'Anti-sag GI framework, Saint-Gobain boards & magnetic track light channels.',
-    specs: ['Architectural Drop Coves', 'Concealed Ambient LED Slots', 'Magnetic Track Cutouts'],
-    status: 'IN-HOUSE CRAFT',
+    title: 'Designer False Ceiling & Coves',
+    shortLabel: 'Ceiling',
     side: 'left',
   },
   {
     id: 'stage-4',
     stageNumber: '04',
     range: [0.43, 0.46, 0.53, 0.57],
-    badge: 'PHASE 04 • SURFACE INTEGRITY',
-    discipline: 'WALL PUTTY & PRIMING',
-    title: '3-Stage Putty Sanding & Silk Base Coats',
-    tagline: 'Machine sanding with zero-undulation laser check & waterproofing primer sealant.',
-    specs: ['3-Layer Polymer Putty', 'Rotary Dustless Sanding', 'Moisture-Barrier Primer'],
-    status: 'IN-HOUSE CRAFT',
+    title: 'Precision Wall Putty & Priming',
+    shortLabel: 'Putty',
     side: 'right',
   },
   {
     id: 'stage-5',
     stageNumber: '05',
     range: [0.57, 0.60, 0.67, 0.71],
-    badge: 'PHASE 05 • FLOORING & STONEWORK',
-    discipline: 'ITALIAN MARBLE & TILES',
-    title: 'Statuario Marble Laying & Seamless Joints',
-    tagline: 'High-gloss mirror-polished marble slabs, vitrified tiles & herringbone parquet.',
-    specs: ['Italian Statuario Book-Match', 'Diamond-Pad Mirror Polish', 'Seamless Epoxy Joint Infills'],
-    status: 'IN-HOUSE CRAFT',
+    title: 'Italian Marble Flooring',
+    shortLabel: 'Marble',
     side: 'left',
   },
   {
     id: 'stage-6',
     stageNumber: '06',
     range: [0.71, 0.74, 0.81, 0.85],
-    badge: 'PHASE 06 • MODULAR ERGONOMICS',
-    discipline: 'MODULAR KITCHEN',
-    title: 'Precision Modular Kitchen & Quartz Counters',
-    tagline: 'BWR marine ply, anti-scratch acrylic shutters & Blum soft-close fittings.',
-    specs: ['BWR Marine Grade Carcass', 'High-Gloss Acrylic Shutters', '18mm Quartz Stone Counter'],
-    status: 'IN-HOUSE CRAFT',
+    title: 'Precision Modular Kitchen',
+    shortLabel: 'Kitchen',
     side: 'right',
   },
   {
     id: 'stage-7',
     stageNumber: '07',
     range: [0.85, 0.88, 0.93, 0.96],
-    badge: 'PHASE 07 • BESPOKE WOODWORK',
-    discipline: 'FURNITURE & LOUVERS',
-    title: 'Custom Wardrobes & Charcoal Highlighters',
-    tagline: 'Full-height floor-to-ceiling wardrobes, fluted charcoal louvers & brass inlays.',
-    specs: ['Floor-to-Ceiling Wardrobes', 'Fluted Acoustic Charcoal Walls', 'PVD Gold Brass Inlays'],
-    status: 'IN-HOUSE CRAFT',
+    title: 'Bespoke Wardrobes & Louvers',
+    shortLabel: 'Wardrobes',
     side: 'left',
   },
   {
     id: 'stage-8',
     stageNumber: '08',
     range: [0.96, 0.98, 1.00, 1.00],
-    badge: 'PHASE 08 • THE GRAND FINALE',
-    discipline: 'COMPLETED MASTERPIECE',
-    title: 'Complete Turnkey Metamorphosis Delivered',
-    tagline: '11 in-house crafts unified into an architectural masterpiece ready for luxury living.',
-    specs: ['100% In-House Factory Fabrication', 'Zero Middlemen • Unified Warranty', 'Turnkey Statutory Handover'],
-    status: 'READY FOR LUXURY LIVING',
+    title: 'Complete Luxury Turnkey Delivery',
+    shortLabel: 'Turnkey',
     side: 'center',
   },
 ];
@@ -448,6 +412,22 @@ export const HighQualityVideoHero: React.FC<HighQualityVideoHeroProps> = ({
             - Stage 07: LEFT
             - Stage 08: CENTER FINALE
             MOBILE OPTIMIZED: Compact, bottom-anchored, leaves top 65% open for video! */}
+        {/* Dynamic Bubble Glass Floating Story Elements
+            SEQUENTIAL ALTERNATING: 
+            - Stage 01: LEFT
+            - Stage 02: RIGHT
+            - Stage 03: LEFT
+            - Stage 04: RIGHT
+            - Stage 05: LEFT
+            - Stage 06: RIGHT
+            - Stage 07: LEFT
+            - Stage 08: CENTER FINALE
+            FEATURES:
+            - Bubble Glass Font with Glowing Edge & Drop-Shadow
+            - NO background card obscuring the video (100% video clarity!)
+            - Glowing Liquid Bubble Pill Border
+            - ONLY the Craft Title, no extra clutter words
+            - Mobile-optimized: bottom-anchored, leaving video completely open */}
         <div className={`relative z-20 max-w-7xl mx-auto px-3 sm:px-8 w-full my-auto transition-opacity duration-300 pointer-events-none ${
           isCinemaMode ? 'opacity-0' : 'opacity-100'
         }`}>
@@ -455,10 +435,10 @@ export const HighQualityVideoHero: React.FC<HighQualityVideoHeroProps> = ({
           {CRAFT_STAGES.map((stage, idx) => {
             // Alternating desktop positioning classes
             const positionClasses = stage.side === 'left'
-              ? 'sm:left-6 lg:left-14 sm:right-auto sm:text-left'
+              ? 'sm:left-6 lg:left-14 sm:right-auto sm:items-start text-left'
               : stage.side === 'right'
-              ? 'sm:right-6 lg:right-14 sm:left-auto sm:text-left'
-              : 'sm:left-1/2 sm:-translate-x-1/2 sm:right-auto sm:text-center max-w-2xl';
+              ? 'sm:right-6 lg:right-14 sm:left-auto sm:items-end text-left sm:text-right'
+              : 'sm:left-1/2 sm:-translate-x-1/2 sm:right-auto sm:items-center text-center max-w-2xl';
 
             return (
               <div
@@ -470,87 +450,50 @@ export const HighQualityVideoHero: React.FC<HighQualityVideoHeroProps> = ({
                   pointerEvents: idx === 0 ? 'auto' : 'none',
                   willChange: 'opacity, transform',
                 }}
-                className={`absolute left-3 right-3 sm:right-auto sm:left-auto bottom-18 sm:bottom-auto sm:top-1/2 sm:-translate-y-1/2 max-w-lg w-auto transition-all ${positionClasses}`}
+                className={`absolute left-3 right-3 sm:right-auto sm:left-auto bottom-18 sm:bottom-auto sm:top-1/2 sm:-translate-y-1/2 flex flex-col pointer-events-none transition-all ${positionClasses}`}
               >
-                {/* Genuine Liquid Glass Lens:
-                    - Almost 100% transparent (bg-white/[0.04])
-                    - Real glass specular rim highlight (inset 0 1px 1px rgba(255,255,255,0.3))
-                    - Zero dark black fill: the video shows through completely! */}
-                <div className="relative rounded-2xl sm:rounded-3xl p-4 sm:p-6 backdrop-blur-xl bg-white/[0.04] hover:bg-white/[0.07] border border-white/20 hover:border-raj-gold/50 shadow-[0_8px_32px_0_rgba(0,0,0,0.37),inset_0_1px_1px_0_rgba(255,255,255,0.25)] transition-colors duration-300 overflow-hidden">
+                {/* Genuine Bubble Glass Capsule:
+                    - 98.5% Transparent (Zero dark box blocking the interior video!)
+                    - Glowing gold specular bubble border with pulse
+                    - 3D Bubble Glass Title typography with glowing outline
+                    - Strictly ONLY Title, zero extra words */}
+                <div className="relative inline-flex items-center gap-2.5 sm:gap-4 px-4 sm:px-7 py-2.5 sm:py-3.5 rounded-full bubble-glass-capsule bubble-glow-active transition-transform duration-300 max-w-[94vw] sm:max-w-none">
                   
-                  {/* Liquid Specular Top Rim */}
-                  <div className="absolute top-0 left-0 right-0 h-[1.5px] bg-gradient-to-r from-transparent via-white/50 to-transparent" />
-                  
-                  {/* Subtle Gold Pulse Aura for active craft */}
-                  <div className="absolute -top-12 -left-12 w-28 h-28 bg-raj-gold/10 rounded-full blur-2xl pointer-events-none" />
+                  {/* Liquid Specular Top Rim Reflection */}
+                  <div className="absolute top-0 left-6 right-6 h-[1.5px] bg-gradient-to-r from-transparent via-white/80 to-transparent pointer-events-none rounded-full" />
 
-                  {/* Header Row: Stage Number, Discipline & Status */}
-                  <div className={`flex items-center gap-2 mb-2 ${stage.side === 'center' ? 'sm:justify-center' : 'justify-between'}`}>
-                    <div className="inline-flex items-center gap-2">
-                      <span className="font-serif text-xl sm:text-2xl font-black text-raj-gold drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]">
-                        {stage.stageNumber}
-                      </span>
-                      <span className="text-[9px] sm:text-[11px] font-mono uppercase tracking-widest text-raj-sand drop-shadow-md">
-                        / 08 • {stage.discipline}
-                      </span>
-                    </div>
+                  {/* Stage Number Pill Badge */}
+                  <span className="font-mono text-xs sm:text-sm font-black text-raj-gold tracking-wider px-2.5 py-0.5 rounded-full bg-raj-gold/15 border border-raj-gold/60 shadow-[0_0_12px_rgba(197,168,128,0.5)] flex-shrink-0">
+                    {stage.stageNumber}
+                  </span>
 
-                    <span className="px-2 py-0.5 rounded-full bg-white/10 border border-white/20 text-[8px] sm:text-[9px] font-mono text-raj-gold uppercase font-bold tracking-wider backdrop-blur-md">
-                      {stage.status}
-                    </span>
-                  </div>
-
-                  {/* Craft Title with High-Contrast Text-Shadow (Readable on any frame!) */}
-                  <h2 className="font-serif text-lg sm:text-2xl lg:text-3xl font-black text-white leading-tight tracking-tight drop-shadow-[0_4px_16px_rgba(0,0,0,0.95)]">
+                  {/* Bubble Glass Font Title with Glowing Edge */}
+                  <h2 className="font-serif text-sm xs:text-base sm:text-xl lg:text-2xl xl:text-3xl font-black tracking-wide bubble-glass-text whitespace-normal sm:whitespace-nowrap">
                     {stage.title}
                   </h2>
-
-                  {/* Tagline */}
-                  <p className="font-serif text-[11px] sm:text-xs text-raj-sand font-light mt-1 sm:mt-1.5 leading-snug drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]">
-                    "{stage.tagline}"
-                  </p>
-
-                  {/* Liquid Glass Specifications Badges */}
-                  <div className={`grid grid-cols-1 sm:grid-cols-2 gap-1.5 sm:gap-2 mt-3 pt-2.5 border-t border-white/10 text-[9px] sm:text-[10px] font-mono text-white/90 ${stage.side === 'center' ? 'max-w-md mx-auto' : ''}`}>
-                    {stage.specs.map((spec, i) => (
-                      <div key={i} className="flex items-center gap-1.5 bg-white/[0.05] px-2 py-1 rounded-lg border border-white/15 backdrop-blur-md">
-                        <CheckCircle2 className="w-3 h-3 text-raj-gold flex-shrink-0" />
-                        <span className="truncate">{spec}</span>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Stage-8 Turnkey Finale Call-to-Action */}
-                  {stage.stageNumber === '08' && (
-                    <div className="flex flex-wrap items-center justify-center gap-2.5 mt-4 pt-3 border-t border-white/10">
-                      <button
-                        onClick={onExploreClick}
-                        className="h-9 sm:h-10 px-5 rounded-full bg-gradient-to-r from-raj-gold to-raj-gold-light text-raj-bg font-bold text-xs tracking-widest uppercase transition-all flex items-center gap-1.5 shadow-xl hover:scale-105 active:scale-95 cursor-pointer"
-                      >
-                        <Sparkles className="w-3.5 h-3.5" />
-                        <span>EXPLORE 11 CRAFTS</span>
-                        <ArrowRight className="w-3.5 h-3.5" />
-                      </button>
-
-                      <button
-                        onClick={onContactClick}
-                        className="h-9 sm:h-10 px-4 rounded-full bg-white/15 hover:bg-white/25 text-white border border-white/25 text-xs font-semibold tracking-wider transition-all flex items-center gap-1.5 backdrop-blur-md active:scale-95 cursor-pointer"
-                      >
-                        <PhoneCall className="w-3.5 h-3.5 text-raj-gold" />
-                        <span>DIRECT INQUIRY</span>
-                      </button>
-                    </div>
-                  )}
-
-                  {/* Scroll Down Prompt for earlier stages */}
-                  {stage.stageNumber !== '08' && (
-                    <div className={`flex items-center gap-1.5 text-[9px] sm:text-[10px] font-mono text-raj-sand mt-2.5 ${stage.side === 'center' ? 'justify-center' : ''}`}>
-                      <ChevronDown className="w-3 h-3 text-raj-gold animate-bounce" />
-                      <span className="uppercase tracking-widest">SCROLL FOR NEXT CRAFT ({stage.side === 'left' ? '→ RIGHT' : '← LEFT'})</span>
-                    </div>
-                  )}
-
                 </div>
+
+                {/* Stage-8 Turnkey Finale Call-to-Action (Minimal, elegant, only on final stage) */}
+                {stage.stageNumber === '08' && (
+                  <div className="flex flex-wrap items-center justify-center gap-2.5 sm:gap-3 mt-4 pointer-events-auto">
+                    <button
+                      onClick={onExploreClick}
+                      className="h-9 sm:h-10 px-5 rounded-full bg-gradient-to-r from-raj-gold to-raj-gold-light text-raj-bg font-bold text-xs tracking-widest uppercase transition-all flex items-center gap-2 shadow-[0_0_20px_rgba(197,168,128,0.4)] hover:scale-105 active:scale-95 cursor-pointer"
+                    >
+                      <Sparkles className="w-3.5 h-3.5" />
+                      <span>EXPLORE CRAFTS</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </button>
+
+                    <button
+                      onClick={onContactClick}
+                      className="h-9 sm:h-10 px-4 rounded-full bubble-glass-capsule text-white text-xs font-bold tracking-wider transition-all flex items-center gap-2 hover:scale-105 active:scale-95 cursor-pointer backdrop-blur-md"
+                    >
+                      <PhoneCall className="w-3.5 h-3.5 text-raj-gold" />
+                      <span>DIRECT INQUIRY</span>
+                    </button>
+                  </div>
+                )}
               </div>
             );
           })}
@@ -587,7 +530,7 @@ export const HighQualityVideoHero: React.FC<HighQualityVideoHeroProps> = ({
                     }`}
                   >
                     <span>{stg.stageNumber}.</span>
-                    <span className="hidden md:inline">{stg.discipline.split(' ')[0]}</span>
+                    <span className="hidden md:inline">{stg.shortLabel}</span>
                     <span className="hidden sm:inline md:hidden text-[8px]">{stg.side === 'left' ? 'L' : stg.side === 'right' ? 'R' : 'C'}</span>
                   </button>
                 );

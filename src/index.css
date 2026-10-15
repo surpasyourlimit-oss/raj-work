@@ -120,3 +120,47 @@
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+/* Liquid Bubble Glass Typography & Glowing Pill Capsule */
+.bubble-glass-capsule {
+  background: rgba(255, 255, 255, 0.015);
+  border: 1.5px solid rgba(197, 168, 128, 0.6);
+  box-shadow: 
+    0 0 25px rgba(197, 168, 128, 0.35),
+    0 8px 30px rgba(0, 0, 0, 0.45),
+    inset 0 1.5px 3px rgba(255, 255, 255, 0.75),
+    inset 0 -1.5px 3px rgba(197, 168, 128, 0.25);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.bubble-glass-text {
+  background: linear-gradient(180deg, #FFFFFF 0%, #FBF9F5 45%, #E6DEC9 75%, #DFC4A0 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  -webkit-text-stroke: 0.5px rgba(255, 255, 255, 0.55);
+  filter: drop-shadow(0 0 15px rgba(197, 168, 128, 0.65)) drop-shadow(0 3px 8px rgba(0, 0, 0, 0.9));
+}
+
+@keyframes bubble-glow-pulse {
+  0% {
+    box-shadow: 
+      0 0 18px rgba(197, 168, 128, 0.3),
+      0 8px 25px rgba(0, 0, 0, 0.4),
+      inset 0 1.5px 3px rgba(255, 255, 255, 0.7),
+      inset 0 -1.5px 3px rgba(197, 168, 128, 0.2);
+    border-color: rgba(197, 168, 128, 0.5);
+  }
+  100% {
+    box-shadow: 
+      0 0 35px rgba(197, 168, 128, 0.6),
+      0 12px 35px rgba(0, 0, 0, 0.5),
+      inset 0 2px 4px rgba(255, 255, 255, 0.9),
+      inset 0 -1.5px 3px rgba(197, 168, 128, 0.35);
+    border-color: rgba(223, 196, 160, 0.85);
+  }
+}
+
+.bubble-glow-active {
+  animation: bubble-glow-pulse 2.8s ease-in-out infinite alternate;
+}
