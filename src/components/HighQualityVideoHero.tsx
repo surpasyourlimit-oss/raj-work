@@ -120,25 +120,21 @@ export const HighQualityVideoHero: React.FC<HighQualityVideoHeroProps> = ({
       const video = videoRef.current;
 
       if (!isPlayingAuto) {
-        // Smooth lerp progress damping (25% step)
+        // Ultra-smooth responsive progress lerp (30% damping)
         const pDiff = targetProgressRef.current - currentProgressRef.current;
-        if (Math.abs(pDiff) > 0.0004) {
-          currentProgressRef.current += pDiff * 0.25;
+        if (Math.abs(pDiff) > 0.0001) {
+          currentProgressRef.current += pDiff * 0.30;
+        } else {
+          currentProgressRef.current = targetProgressRef.current;
         }
 
         const p = currentProgressRef.current;
 
-        // Video seeking: instantaneous hardware GOP=2 jump
+        // Buttery-smooth video scrub engine without decoder thrashing
         if (video && Number.isFinite(video.duration) && video.duration > 0) {
-          const targetTime = p * video.duration;
-          const tDiff = targetTime - currentVideoTimeRef.current;
-          if (Math.abs(tDiff) > 0.015) {
-            currentVideoTimeRef.current += tDiff * 0.32;
-            if ('fastSeek' in video && typeof (video as { fastSeek?: (t: number) => void }).fastSeek === 'function') {
-              (video as { fastSeek: (t: number) => void }).fastSeek(currentVideoTimeRef.current);
-            } else {
-              video.currentTime = currentVideoTimeRef.current;
-            }
+          const targetTime = Math.min(Math.max(p * video.duration, 0), video.duration - 0.02);
+          if (!video.seeking && Math.abs(video.currentTime - targetTime) > 0.006) {
+            video.currentTime = targetTime;
           }
         }
 
