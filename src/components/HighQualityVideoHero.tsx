@@ -331,7 +331,7 @@ export const HighQualityVideoHero: React.FC<HighQualityVideoHeroProps> = ({
         <div className="absolute inset-0 w-full h-full bg-[#0A0B0E] pointer-events-none select-none">
           <video
             ref={videoRef}
-            src="/assets/hero_scrub_optimized.mp4"
+            src="./assets/hero_scrub_optimized.mp4"
             playsInline
             loop={isPlayingAuto}
             muted={isMuted}
