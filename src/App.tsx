@@ -1,6 +1,6 @@
 import React from 'react';
 import { Navbar } from './components/Navbar';
-import { CanvasScrollHero } from './components/CanvasScrollHero';
+import { HighQualityVideoHero } from './components/HighQualityVideoHero';
 import { InteriorSolutions } from './components/InteriorSolutions';
 import { StoryScroller } from './components/StoryScroller';
 import { MaterialConfigurator } from './components/MaterialConfigurator';
@@ -22,13 +22,14 @@ export const App: React.FC = () => {
       {/* 1. Top Fixed Navigation Bar */}
       <Navbar />
 
-      {/* 2. Apple-Grade Canvas Frame-Sequence Hero (500vh)
-          - Ultra-smooth 60/120 FPS canvas rendering with ZERO lag
+      {/* 2. High-Quality 1080p 60FPS Video Scroll Hero (450vh)
+          - GOP=2 Keyframe optimized video for instant hardware-accelerated seek (< 2ms)
+          - Direct DOM ref updates outside React cycle for 120 FPS buttery smooth inertia
           - 8 Distinct glassmorphic cards sequentially animating each interior craft
-          - STRICT: Only after all 113 frames finish, the remaining website sections appear! */}
+          - STRICT: Only after the video completes, the remaining website sections appear! */}
       <main className="flex-grow">
         
-        <CanvasScrollHero
+        <HighQualityVideoHero
           onExploreClick={() => scrollToSection('services-section')}
           onContactClick={() => scrollToSection('contact-section')}
         />
