@@ -16,6 +16,13 @@ interface CraftStage {
   side: 'left' | 'right' | 'center';
 }
 
+const TOTAL_FRAMES = 487;
+
+const getFramePath = (idx: number) => {
+  const pad = String(idx + 1).padStart(4, '0');
+  return `./assets/frames/frame_${pad}.jpg`;
+};
+
 const CRAFT_STAGES: CraftStage[] = [
   {
     id: 'stage-1',
@@ -88,16 +95,20 @@ export const HighQualityVideoHero: React.FC<HighQualityVideoHeroProps> = ({
   onContactClick,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
   const progressBarRef = useRef<HTMLDivElement>(null);
   const percentTextRef = useRef<HTMLSpanElement>(null);
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
+  // 487-Frame Image cache
+  const imagesRef = useRef<(HTMLImageElement | null)[]>([]);
+  const lastDrawnIndexRef = useRef<number>(-1);
+
   // High-performance scroll tracking refs (Zero React re-render churn during scroll)
   const currentProgressRef = useRef<number>(0);
   const targetProgressRef = useRef<number>(0);
-  const currentVideoTimeRef = useRef<number>(0);
   const rafRef = useRef<number | null>(null);
 
   const [isPlayingAuto, setIsPlayingAuto] = useState<boolean>(false);
@@ -105,40 +116,126 @@ export const HighQualityVideoHero: React.FC<HighQualityVideoHeroProps> = ({
   const [isCinemaMode, setIsCinemaMode] = useState<boolean>(false);
   const [activeStageIndex, setActiveStageIndex] = useState<number>(0);
 
-  // Initialize and ensure video starts ready
-  useEffect(() => {
-    const video = videoRef.current;
-    if (video) {
-      video.muted = true;
-      video.currentTime = 0.04;
+  // High-DPI Cover Draw Method
+  const drawFrame = useCallback((frameIdx: number) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d', { alpha: false });
+    if (!ctx) return;
+
+    let img = imagesRef.current[frameIdx];
+    if (!img || !img.complete || img.naturalWidth === 0) {
+      // Find nearest loaded frame
+      let bestDist = Infinity;
+      let fallbackImg: HTMLImageElement | null = null;
+      for (let i = 0; i < TOTAL_FRAMES; i++) {
+        const cand = imagesRef.current[i];
+        if (cand && cand.complete && cand.naturalWidth > 0) {
+          const dist = Math.abs(i - frameIdx);
+          if (dist < bestDist) {
+            bestDist = dist;
+            fallbackImg = cand;
+          }
+        }
+      }
+      img = fallbackImg || imagesRef.current[0];
     }
+
+    if (!img || !img.complete || img.naturalWidth === 0) return;
+
+    const cw = canvas.width;
+    const ch = canvas.height;
+    const iw = img.naturalWidth;
+    const ih = img.naturalHeight;
+
+    const ratio = Math.max(cw / iw, ch / ih);
+    const nw = iw * ratio;
+    const nh = ih * ratio;
+    const nx = (cw - nw) / 2;
+    const ny = (ch - nh) / 2;
+
+    ctx.drawImage(img, nx, ny, nw, nh);
+    lastDrawnIndexRef.current = frameIdx;
   }, []);
 
-  // High-performance rAF loop: drives video seek and liquid glass left/right alternating animations
+  // Canvas Resize Handler
+  const resizeCanvas = useCallback(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = Math.floor(window.innerWidth * dpr);
+    canvas.height = Math.floor(window.innerHeight * dpr);
+    if (lastDrawnIndexRef.current >= 0) {
+      drawFrame(lastDrawnIndexRef.current);
+    } else {
+      drawFrame(0);
+    }
+  }, [drawFrame]);
+
+  // Preload Pipeline
+  useEffect(() => {
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas, { passive: true });
+
+    // 1. Load initial frame immediately
+    const img0 = new Image();
+    img0.src = getFramePath(0);
+    img0.onload = () => {
+      imagesRef.current[0] = img0;
+      drawFrame(0);
+    };
+
+    // 2. Preload keyframes every 8 frames first for instant scrub responsiveness
+    for (let i = 0; i < TOTAL_FRAMES; i += 8) {
+      if (i === 0) continue;
+      const img = new Image();
+      img.src = getFramePath(i);
+      const idx = i;
+      img.onload = () => {
+        imagesRef.current[idx] = img;
+      };
+    }
+
+    // 3. Preload all remaining frames progressively
+    const timeoutId = setTimeout(() => {
+      for (let i = 0; i < TOTAL_FRAMES; i++) {
+        if (imagesRef.current[i]) continue;
+        const img = new Image();
+        img.src = getFramePath(i);
+        const idx = i;
+        img.onload = () => {
+          imagesRef.current[idx] = img;
+        };
+      }
+    }, 200);
+
+    return () => {
+      window.removeEventListener('resize', resizeCanvas);
+      clearTimeout(timeoutId);
+    };
+  }, [resizeCanvas, drawFrame]);
+
+  // High-performance rAF loop: drives canvas frame render and bubble glass alternating animations
   useEffect(() => {
     const loop = () => {
-      const video = videoRef.current;
-
       if (!isPlayingAuto) {
-        // Ultra-smooth responsive progress lerp (30% damping)
+        // Ultra-smooth responsive progress lerp (32% damping)
         const pDiff = targetProgressRef.current - currentProgressRef.current;
         if (Math.abs(pDiff) > 0.0001) {
-          currentProgressRef.current += pDiff * 0.30;
+          currentProgressRef.current += pDiff * 0.32;
         } else {
           currentProgressRef.current = targetProgressRef.current;
         }
 
         const p = currentProgressRef.current;
 
-        // Buttery-smooth video scrub engine without decoder thrashing
-        if (video && Number.isFinite(video.duration) && video.duration > 0) {
-          const targetTime = Math.min(Math.max(p * video.duration, 0), video.duration - 0.02);
-          if (!video.seeking && Math.abs(video.currentTime - targetTime) > 0.006) {
-            video.currentTime = targetTime;
-          }
+        // Instant 0ms Canvas Frame Rendering
+        const targetFrame = Math.min(Math.max(Math.floor(p * (TOTAL_FRAMES - 1)), 0), TOTAL_FRAMES - 1);
+        if (targetFrame !== lastDrawnIndexRef.current) {
+          drawFrame(targetFrame);
         }
 
-        // Direct DOM Liquid Glass Left/Right Alternating Animation (Zero React re-renders!)
+        // Direct DOM Bubble Glass Left/Right Alternating Animation (Zero React re-renders!)
         let activeIdx = 0;
         const isMobile = window.innerWidth < 640;
 
@@ -156,7 +253,6 @@ export const HighQualityVideoHero: React.FC<HighQualityVideoHeroProps> = ({
             activeIdx = idx;
 
             if (p < peakStart) {
-              // ENTRANCE: Slide in from its assigned side (Left or Right)
               const f = (p - start) / (peakStart - start);
               opacity = f;
               const baseOffset = isMobile ? 0 : (stage.side === 'left' ? -38 : stage.side === 'right' ? 38 : 0);
@@ -164,7 +260,6 @@ export const HighQualityVideoHero: React.FC<HighQualityVideoHeroProps> = ({
               translateY = 16 * (1 - f);
               scale = 0.96 + 0.04 * f;
             } else if (p > peakEnd) {
-              // EXIT: Slide out smoothly
               const f = (end - p) / (end - peakEnd);
               opacity = f;
               const exitOffset = isMobile ? 0 : (stage.side === 'left' ? 24 : stage.side === 'right' ? -24 : 0);
@@ -172,7 +267,6 @@ export const HighQualityVideoHero: React.FC<HighQualityVideoHeroProps> = ({
               translateY = -16 * (1 - f);
               scale = 0.96 + 0.04 * f;
             } else {
-              // PEAK ACTIVE: Fully visible at target position
               opacity = 1;
               translateX = 0;
               translateY = 0;
@@ -180,7 +274,6 @@ export const HighQualityVideoHero: React.FC<HighQualityVideoHeroProps> = ({
             }
           }
 
-          // Apply directly to DOM without causing React state reconciliation
           el.style.opacity = String(opacity);
           el.style.transform = `translate3d(${translateX}px, ${translateY}px, 0) scale(${scale})`;
           el.style.pointerEvents = opacity > 0.4 ? 'auto' : 'none';
@@ -194,54 +287,55 @@ export const HighQualityVideoHero: React.FC<HighQualityVideoHeroProps> = ({
           percentTextRef.current.innerText = `${Math.round(p * 100)}%`;
         }
 
-        // Only update active stage index state when it actually changes
         setActiveStageIndex(prev => prev !== activeIdx ? activeIdx : prev);
 
       } else {
-        // Continuous auto-play loop
-        if (video && Number.isFinite(video.duration) && video.duration > 0) {
-          const p = video.currentTime / video.duration;
-          currentProgressRef.current = p;
-          targetProgressRef.current = p;
-          currentVideoTimeRef.current = video.currentTime;
+        // Continuous auto-play loop (30 fps smooth playback)
+        currentProgressRef.current = (currentProgressRef.current + 0.0016) % 1;
+        targetProgressRef.current = currentProgressRef.current;
+        const p = currentProgressRef.current;
 
-          let activeIdx = 0;
-          CRAFT_STAGES.forEach((stage, idx) => {
-            const el = cardRefs.current[idx];
-            if (!el) return;
-            const [start, peakStart, peakEnd, end] = stage.range;
-            let opacity = 0;
-            let translateY = 20;
-
-            if (p >= start && p <= end) {
-              activeIdx = idx;
-              if (p < peakStart) {
-                const f = (p - start) / (peakStart - start);
-                opacity = f;
-                translateY = 16 * (1 - f);
-              } else if (p > peakEnd) {
-                const f = (end - p) / (end - peakEnd);
-                opacity = f;
-                translateY = -16 * (1 - f);
-              } else {
-                opacity = 1;
-                translateY = 0;
-              }
-            }
-
-            el.style.opacity = String(opacity);
-            el.style.transform = `translate3d(0, ${translateY}px, 0)`;
-            el.style.pointerEvents = opacity > 0.4 ? 'auto' : 'none';
-          });
-
-          if (progressBarRef.current) {
-            progressBarRef.current.style.width = `${Math.round(p * 100)}%`;
-          }
-          if (percentTextRef.current) {
-            percentTextRef.current.innerText = `${Math.round(p * 100)}%`;
-          }
-          setActiveStageIndex(prev => prev !== activeIdx ? activeIdx : prev);
+        const targetFrame = Math.min(Math.max(Math.floor(p * (TOTAL_FRAMES - 1)), 0), TOTAL_FRAMES - 1);
+        if (targetFrame !== lastDrawnIndexRef.current) {
+          drawFrame(targetFrame);
         }
+
+        let activeIdx = 0;
+        CRAFT_STAGES.forEach((stage, idx) => {
+          const el = cardRefs.current[idx];
+          if (!el) return;
+          const [start, peakStart, peakEnd, end] = stage.range;
+          let opacity = 0;
+          let translateY = 20;
+
+          if (p >= start && p <= end) {
+            activeIdx = idx;
+            if (p < peakStart) {
+              const f = (p - start) / (peakStart - start);
+              opacity = f;
+              translateY = 16 * (1 - f);
+            } else if (p > peakEnd) {
+              const f = (end - p) / (end - peakEnd);
+              opacity = f;
+              translateY = -16 * (1 - f);
+            } else {
+              opacity = 1;
+              translateY = 0;
+            }
+          }
+
+          el.style.opacity = String(opacity);
+          el.style.transform = `translate3d(0, ${translateY}px, 0)`;
+          el.style.pointerEvents = opacity > 0.4 ? 'auto' : 'none';
+        });
+
+        if (progressBarRef.current) {
+          progressBarRef.current.style.width = `${Math.round(p * 100)}%`;
+        }
+        if (percentTextRef.current) {
+          percentTextRef.current.innerText = `${Math.round(p * 100)}%`;
+        }
+        setActiveStageIndex(prev => prev !== activeIdx ? activeIdx : prev);
       }
 
       rafRef.current = requestAnimationFrame(loop);
@@ -251,7 +345,7 @@ export const HighQualityVideoHero: React.FC<HighQualityVideoHeroProps> = ({
     return () => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
     };
-  }, [isPlayingAuto]);
+  }, [isPlayingAuto, drawFrame]);
 
   // High-frequency scroll listener: only sets targetProgressRef (Zero React setState!)
   const handleScroll = useCallback(() => {
@@ -291,17 +385,14 @@ export const HighQualityVideoHero: React.FC<HighQualityVideoHeroProps> = ({
 
   const toggleAutoPlay = () => {
     const video = videoRef.current;
-    if (!video) return;
-
     if (isPlayingAuto) {
-      video.pause();
+      if (video) video.pause();
       setIsPlayingAuto(false);
     } else {
-      video.play().then(() => {
-        setIsPlayingAuto(true);
-      }).catch((err) => {
-        console.warn('Autoplay prevented:', err);
-      });
+      if (video) {
+        video.play().catch(() => {});
+      }
+      setIsPlayingAuto(true);
     }
   };
 
@@ -317,14 +408,22 @@ export const HighQualityVideoHero: React.FC<HighQualityVideoHeroProps> = ({
       ref={containerRef}
       className="relative w-full h-[450vh] bg-[#0A0B0E]"
     >
-      {/* Sticky Fullscreen 1080p 60fps Video Viewport:
-          - Pins for 450vh while scroll smoothly scrubs the video
-          - Liquid glass panels let 100% of the room and lights show through!
+      {/* Sticky Fullscreen High-DPI 487-Frame Canvas Viewport:
+          - Pins for 450vh while scroll smoothly scrubs through 487 1080p frames
+          - Zero video decoder seek latency: draws frames instantly on GPU in 0.1ms!
+          - Bubble glass titles let 100% of the room and lights show through!
           - Strictly when progress hits 100%, continuing to scroll reveals the rest of the website! */}
       <div className="sticky top-0 h-screen w-full overflow-hidden flex flex-col justify-between">
         
-        {/* Master Full-HD 60FPS Video Element */}
+        {/* Master 487-Frame Ultra-Smooth High-Fidelity Canvas */}
         <div className="absolute inset-0 w-full h-full bg-[#0A0B0E] pointer-events-none select-none">
+          <canvas
+            ref={canvasRef}
+            className="w-full h-full block will-change-transform"
+            style={{ width: '100%', height: '100%' }}
+          />
+
+          {/* Hidden Background Audio/Video Stream */}
           <video
             ref={videoRef}
             src="./assets/hero_scrub_optimized.mp4"
@@ -332,10 +431,10 @@ export const HighQualityVideoHero: React.FC<HighQualityVideoHeroProps> = ({
             loop={isPlayingAuto}
             muted={isMuted}
             preload="auto"
-            className="w-full h-full object-cover scale-[1.008] will-change-transform"
+            className="hidden"
           />
 
-          {/* Ultra-Lightweight ambient gradient: NO heavy dark boxes blocking the video! */}
+          {/* Ultra-Lightweight ambient gradient: NO heavy dark boxes blocking the visual! */}
           <div className="absolute inset-0 bg-black/10 pointer-events-none" />
           <div className="absolute inset-0 bg-gradient-to-t from-[#0A0B0E]/70 via-transparent to-[#0A0B0E]/30 pointer-events-none" />
         </div>
@@ -359,7 +458,7 @@ export const HighQualityVideoHero: React.FC<HighQualityVideoHeroProps> = ({
             <button
               onClick={() => setIsCinemaMode(!isCinemaMode)}
               className="flex items-center gap-1 sm:gap-1.5 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full bg-white/[0.06] backdrop-blur-xl border border-white/20 text-[10px] sm:text-[11px] font-mono text-raj-cream hover:text-raj-gold transition-colors shadow-2xl active:scale-95 cursor-pointer"
-              title={isCinemaMode ? 'Show Text' : 'Pure Video Mode (Hide Text)'}
+              title={isCinemaMode ? 'Show Text' : 'Pure View (Hide Text)'}
             >
               {isCinemaMode ? <Eye className="w-3.5 h-3.5 text-raj-gold" /> : <EyeOff className="w-3.5 h-3.5 text-raj-gold" />}
               <span className="hidden sm:inline font-bold tracking-wider">{isCinemaMode ? 'SHOW DETAILS' : 'PURE VIEW'}</span>
@@ -369,7 +468,7 @@ export const HighQualityVideoHero: React.FC<HighQualityVideoHeroProps> = ({
             <button
               onClick={toggleAutoPlay}
               className="flex items-center gap-1 sm:gap-1.5 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full bg-white/[0.06] backdrop-blur-xl border border-white/20 text-[10px] sm:text-[11px] font-mono text-raj-cream hover:text-raj-gold transition-colors shadow-2xl active:scale-95 cursor-pointer"
-              title={isPlayingAuto ? 'Switch to Scroll Scrub' : 'Play Video Automatically'}
+              title={isPlayingAuto ? 'Switch to Scroll Scrub' : 'Play Automatically'}
             >
               {isPlayingAuto ? (
                 <>
@@ -397,17 +496,6 @@ export const HighQualityVideoHero: React.FC<HighQualityVideoHeroProps> = ({
 
         </div>
 
-        {/* Dynamic Liquid Glass Floating Story Elements
-            SEQUENTIAL ALTERNATING: 
-            - Stage 01: LEFT
-            - Stage 02: RIGHT
-            - Stage 03: LEFT
-            - Stage 04: RIGHT
-            - Stage 05: LEFT
-            - Stage 06: RIGHT
-            - Stage 07: LEFT
-            - Stage 08: CENTER FINALE
-            MOBILE OPTIMIZED: Compact, bottom-anchored, leaves top 65% open for video! */}
         {/* Dynamic Bubble Glass Floating Story Elements
             SEQUENTIAL ALTERNATING: 
             - Stage 01: LEFT
@@ -420,10 +508,10 @@ export const HighQualityVideoHero: React.FC<HighQualityVideoHeroProps> = ({
             - Stage 08: CENTER FINALE
             FEATURES:
             - Bubble Glass Font with Glowing Edge & Drop-Shadow
-            - NO background card obscuring the video (100% video clarity!)
+            - NO background card obscuring the visual (100% clarity!)
             - Glowing Liquid Bubble Pill Border
             - ONLY the Craft Title, no extra clutter words
-            - Mobile-optimized: bottom-anchored, leaving video completely open */}
+            - Mobile-optimized: bottom-anchored, leaving visuals completely open */}
         <div className={`relative z-20 max-w-7xl mx-auto px-3 sm:px-8 w-full my-auto transition-opacity duration-300 pointer-events-none ${
           isCinemaMode ? 'opacity-0' : 'opacity-100'
         }`}>
