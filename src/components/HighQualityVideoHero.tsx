@@ -100,7 +100,6 @@ export const HighQualityVideoHero: React.FC<HighQualityVideoHeroProps> = ({
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
   const progressBarRef = useRef<HTMLDivElement>(null);
   const percentTextRef = useRef<HTMLSpanElement>(null);
-  const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
   // 487-Frame Image cache
   const imagesRef = useRef<(HTMLImageElement | null)[]>([]);
@@ -123,6 +122,9 @@ export const HighQualityVideoHero: React.FC<HighQualityVideoHeroProps> = ({
     if (!canvas) return;
     const ctx = canvas.getContext('2d', { alpha: false });
     if (!ctx) return;
+
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
 
     let img = imagesRef.current[frameIdx];
     if (!img || !img.complete || img.naturalWidth === 0) {
@@ -429,6 +431,20 @@ export const HighQualityVideoHero: React.FC<HighQualityVideoHeroProps> = ({
     window.scrollTo({ top: targetScrollY, behavior: 'smooth' });
   };
 
+  // Jump to arbitrary scrub progress
+  const jumpToProgress = (progressRatio: number) => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    setIsPlayingAuto(false);
+    if (videoRef.current) videoRef.current.pause();
+
+    const totalScrollable = container.clientHeight - window.innerHeight;
+    const targetScrollY = container.offsetTop + progressRatio * totalScrollable;
+
+    window.scrollTo({ top: targetScrollY, behavior: 'smooth' });
+  };
+
   const toggleAutoPlay = () => {
     const video = videoRef.current;
     if (isPlayingAuto) {
@@ -466,7 +482,11 @@ export const HighQualityVideoHero: React.FC<HighQualityVideoHeroProps> = ({
           <canvas
             ref={canvasRef}
             className="w-full h-full block will-change-transform"
-            style={{ width: '100%', height: '100%' }}
+            style={{
+              width: '100%',
+              height: '100%',
+              filter: 'contrast(1.04) saturate(1.06) brightness(1.01)',
+            }}
           />
 
           {/* Hidden Background Audio/Video Stream */}
@@ -480,9 +500,10 @@ export const HighQualityVideoHero: React.FC<HighQualityVideoHeroProps> = ({
             className="hidden"
           />
 
-          {/* Ultra-Lightweight ambient gradient: NO heavy dark boxes blocking the visual! */}
-          <div className="absolute inset-0 bg-black/10 pointer-events-none" />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0A0B0E]/70 via-transparent to-[#0A0B0E]/30 pointer-events-none" />
+          {/* Subtle Architectural Cinema Vignette: Only at the extreme perimeter so 100% of the interior, lighting and gold tones are crystal clear and vibrant! */}
+          <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_center,transparent_65%,rgba(10,11,14,0.38)_100%)]" />
+          <div className="absolute top-0 inset-x-0 h-24 pointer-events-none bg-gradient-to-b from-[#0A0B0E]/50 to-transparent" />
+          <div className="absolute bottom-0 inset-x-0 h-28 pointer-events-none bg-gradient-to-t from-[#0A0B0E]/50 to-transparent" />
         </div>
 
         {/* Top Floating Controls Bar */}
@@ -580,7 +601,7 @@ export const HighQualityVideoHero: React.FC<HighQualityVideoHeroProps> = ({
                   pointerEvents: idx === 0 ? 'auto' : 'none',
                   willChange: 'opacity, transform',
                 }}
-                className={`absolute left-3 right-3 sm:right-auto sm:left-auto bottom-18 sm:bottom-auto sm:top-1/2 sm:-translate-y-1/2 flex flex-col pointer-events-none transition-all ${positionClasses}`}
+                className={`absolute left-3 right-3 sm:right-auto sm:left-auto bottom-22 sm:bottom-auto sm:top-1/2 sm:-translate-y-1/2 flex flex-col pointer-events-none transition-all ${positionClasses}`}
               >
                 {/* Genuine Bubble Glass Capsule:
                     - 98.5% Transparent (Zero dark box blocking the interior video!)
@@ -630,45 +651,77 @@ export const HighQualityVideoHero: React.FC<HighQualityVideoHeroProps> = ({
 
         </div>
 
-        {/* Bottom Interactive Milestone Navigation Dock
-            Mobile Optimized with horizontal scroll bar and compact buttons */}
-        <div className="relative z-30 pb-3 sm:pb-5 px-3 sm:px-8 max-w-7xl mx-auto w-full">
-          <div className="max-w-4xl mx-auto flex flex-col gap-1.5 sm:gap-2">
+        {/* Bottom Luxury Milestone Navigation Dock (Zero Tab Clutter, 100% Prestigious) */}
+        <div className="relative z-30 pb-4 sm:pb-6 px-3 sm:px-8 max-w-4xl mx-auto w-full">
+          <div className="milestone-dock rounded-2xl sm:rounded-full px-4 sm:px-6 py-2.5 sm:py-3 flex flex-col gap-2.5 shadow-2xl transition-all">
             
-            {/* Slim Scrub Track */}
-            <div className="w-full bg-white/20 h-1 sm:h-1.5 rounded-full overflow-hidden relative backdrop-blur-md">
-              <div
-                ref={progressBarRef}
-                className="h-full bg-gradient-to-r from-raj-sand via-raj-gold to-raj-gold-light transition-all duration-75 rounded-full"
-                style={{ width: '0%' }}
-              />
-            </div>
+            {/* Interactive Precision Scrub Track with 8 Luxury Milestone Diamond Pips */}
+            <div 
+              className="relative w-full h-3 sm:h-3.5 flex items-center cursor-pointer group py-1"
+              onClick={(e) => {
+                const rect = e.currentTarget.getBoundingClientRect();
+                const clickX = e.clientX - rect.left;
+                const scrubRatio = Math.min(Math.max(clickX / rect.width, 0), 1);
+                jumpToProgress(scrubRatio);
+              }}
+              title="Click or drag to scrub transformation"
+            >
+              {/* Background Track */}
+              <div className="w-full bg-white/15 h-1 sm:h-1.5 rounded-full overflow-hidden relative">
+                <div
+                  ref={progressBarRef}
+                  className="h-full bg-gradient-to-r from-raj-sand via-raj-gold to-raj-gold-light rounded-full milestone-track-glow transition-all duration-75"
+                  style={{ width: '0%' }}
+                />
+              </div>
 
-            {/* 8 Discrete Craft Stage Tabs */}
-            <div className="flex items-center justify-between gap-1 overflow-x-auto pb-1 no-scrollbar text-[9px] sm:text-[10px] font-mono">
+              {/* 8 Luxury Milestone Pips Embedded Along the Track */}
               {CRAFT_STAGES.map((stg, i) => {
+                const leftPercent = stg.range[0] * 100;
                 const isActive = activeStageIndex === i;
+                const isPassed = activeStageIndex > i;
                 return (
                   <button
                     key={stg.id}
-                    ref={el => { tabRefs.current[i] = el; }}
-                    onClick={() => jumpToStage(stg.range[0] + 0.01)}
-                    className={`flex-shrink-0 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-lg transition-all cursor-pointer flex items-center gap-1 ${
-                      isActive
-                        ? 'bg-raj-gold text-raj-bg font-bold shadow-md scale-105'
-                        : 'text-white/70 hover:text-white hover:bg-white/10'
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      jumpToStage(stg.range[0] + 0.01);
+                    }}
+                    style={{ left: `${leftPercent}%` }}
+                    className={`absolute -translate-x-1/2 w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full flex items-center justify-center transition-all cursor-pointer ${
+                      isActive 
+                        ? 'scale-125 bg-raj-gold shadow-[0_0_16px_rgba(197,168,128,1)] ring-2 ring-white/80 z-20' 
+                        : isPassed 
+                        ? 'bg-raj-gold/80 scale-90 ring-1 ring-raj-gold/40 z-10 hover:scale-110' 
+                        : 'bg-white/25 hover:bg-white/60 scale-75 hover:scale-105 z-10'
                     }`}
+                    title={`Stage ${stg.stageNumber}: ${stg.title}`}
                   >
-                    <span>{stg.stageNumber}.</span>
-                    <span className="hidden md:inline">{stg.shortLabel}</span>
-                    <span className="hidden sm:inline md:hidden text-[8px]">{stg.side === 'left' ? 'L' : stg.side === 'right' ? 'R' : 'C'}</span>
+                    <span className={`w-1.5 h-1.5 rounded-full ${isActive ? 'bg-raj-bg font-bold' : isPassed ? 'bg-raj-bg/70' : 'bg-transparent'}`} />
                   </button>
                 );
               })}
+            </div>
 
-              <div className="hidden lg:flex items-center gap-1 text-raj-sand text-[10px]">
-                <ChevronDown className="w-3 h-3 text-raj-gold animate-bounce" />
-                <span>SCROLL DOWN</span>
+            {/* Streamlined Active Phase Indicator (Zero Clutter, Ultra-Prestigious) */}
+            <div className="flex items-center justify-between gap-3 text-xs">
+              <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+                <span className="font-mono text-[10px] sm:text-xs font-bold text-raj-gold tracking-widest px-2 py-0.5 rounded-md bg-raj-gold/15 border border-raj-gold/40 flex-shrink-0">
+                  STAGE {CRAFT_STAGES[activeStageIndex]?.stageNumber || '01'} / 08
+                </span>
+                <span className="font-serif text-xs sm:text-sm font-semibold tracking-wide text-raj-cream truncate">
+                  {CRAFT_STAGES[activeStageIndex]?.title}
+                </span>
+              </div>
+
+              <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+                <div className="hidden sm:flex items-center gap-1 text-[10px] font-mono text-raj-sand/60 uppercase tracking-wider">
+                  <ChevronDown className="w-3 h-3 text-raj-gold animate-bounce" />
+                  <span>SCROLL TO SCRUB</span>
+                </div>
+                <div className="flex items-center gap-1 font-mono text-xs text-raj-gold font-bold bg-black/40 px-2 py-0.5 rounded-md border border-raj-gold/30">
+                  <span ref={percentTextRef}>0%</span>
+                </div>
               </div>
             </div>
 

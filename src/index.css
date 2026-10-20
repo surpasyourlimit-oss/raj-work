@@ -122,44 +122,60 @@
 
 /* Liquid Bubble Glass Typography & Glowing Pill Capsule */
 .bubble-glass-capsule {
-  background: rgba(255, 255, 255, 0.015);
-  border: 1.5px solid rgba(197, 168, 128, 0.6);
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid rgba(197, 168, 128, 0.45);
   box-shadow: 
-    0 0 25px rgba(197, 168, 128, 0.35),
-    0 8px 30px rgba(0, 0, 0, 0.45),
-    inset 0 1.5px 3px rgba(255, 255, 255, 0.75),
-    inset 0 -1.5px 3px rgba(197, 168, 128, 0.25);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+    0 0 25px rgba(197, 168, 128, 0.25),
+    0 12px 35px rgba(0, 0, 0, 0.6),
+    inset 0 1px 2px rgba(255, 255, 255, 0.8),
+    inset 0 -1px 2px rgba(197, 168, 128, 0.3);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
 }
 
 .bubble-glass-text {
-  background: linear-gradient(180deg, #FFFFFF 0%, #FBF9F5 45%, #E6DEC9 75%, #DFC4A0 100%);
+  background: linear-gradient(180deg, #FFFFFF 0%, #FFF9F0 30%, #E8DCC6 65%, #C5A880 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  -webkit-text-stroke: 0.5px rgba(255, 255, 255, 0.55);
-  filter: drop-shadow(0 0 15px rgba(197, 168, 128, 0.65)) drop-shadow(0 3px 8px rgba(0, 0, 0, 0.9));
+  -webkit-text-stroke: 0.5px rgba(255, 255, 255, 0.65);
+  filter: drop-shadow(0 0 16px rgba(197, 168, 128, 0.55)) drop-shadow(0 4px 10px rgba(0, 0, 0, 0.95));
 }
 
 @keyframes bubble-glow-pulse {
   0% {
     box-shadow: 
-      0 0 18px rgba(197, 168, 128, 0.3),
-      0 8px 25px rgba(0, 0, 0, 0.4),
-      inset 0 1.5px 3px rgba(255, 255, 255, 0.7),
-      inset 0 -1.5px 3px rgba(197, 168, 128, 0.2);
-    border-color: rgba(197, 168, 128, 0.5);
+      0 0 18px rgba(197, 168, 128, 0.25),
+      0 8px 25px rgba(0, 0, 0, 0.5),
+      inset 0 1px 2px rgba(255, 255, 255, 0.7),
+      inset 0 -1px 2px rgba(197, 168, 128, 0.2);
+    border-color: rgba(197, 168, 128, 0.4);
   }
   100% {
     box-shadow: 
-      0 0 35px rgba(197, 168, 128, 0.6),
-      0 12px 35px rgba(0, 0, 0, 0.5),
-      inset 0 2px 4px rgba(255, 255, 255, 0.9),
-      inset 0 -1.5px 3px rgba(197, 168, 128, 0.35);
-    border-color: rgba(223, 196, 160, 0.85);
+      0 0 35px rgba(197, 168, 128, 0.5),
+      0 12px 35px rgba(0, 0, 0, 0.65),
+      inset 0 1.5px 3px rgba(255, 255, 255, 0.9),
+      inset 0 -1px 2px rgba(197, 168, 128, 0.35);
+    border-color: rgba(223, 196, 160, 0.75);
   }
 }
 
 .bubble-glow-active {
   animation: bubble-glow-pulse 2.8s ease-in-out infinite alternate;
+}
+
+/* Luxury Milestone Scrubber & Interactive Dock */
+.milestone-dock {
+  background: rgba(18, 20, 25, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 
+    0 10px 40px rgba(0, 0, 0, 0.7),
+    0 0 20px rgba(197, 168, 128, 0.12),
+    inset 0 1px 1px rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+}
+
+.milestone-track-glow {
+  box-shadow: 0 0 12px rgba(197, 168, 128, 0.6), inset 0 0 6px rgba(255, 255, 255, 0.4);
 }
